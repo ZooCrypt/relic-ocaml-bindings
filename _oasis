@@ -1,0 +1,56 @@
+OASISFormat:    0.4
+Name:           relic
+Version:        0.0.1
+Synopsis:       OCaml bindings for the Relic library
+Authors:        Benedikt Schmidt <beschmi@gmail.com>
+License:        MIT
+Plugins:        DevFiles (0.4), META (0.4)
+BuildTools:     ocamlbuild
+
+Library relic
+  Path:             lib
+  FindlibName:      relic
+  Modules:          Relic
+  InternalModules:  Ffi_generated, Ffi_generated_types
+  CSources:         ffi_generated_stubs.c
+  CCOpt:            -I $pkg_ctypes_stubs
+  CCLib:            -lrelic
+  ByteOpt:          -warn-error +1..45
+  NativeOpt:        -warn-error +1..45
+  BuildDepends:     relic_bindings
+
+Library relic_bindings
+  Install:          true
+  Path:             bindings
+  Modules:          Ffi_bindings
+  ByteOpt:          -warn-error +1..45
+  NativeOpt:        -warn-error +1..45
+  BuildDepends:     ctypes, ctypes.stubs, ctypes.foreign
+
+Executable ffi_stubgen
+  Install:        false
+  Path:           stubgen
+  MainIs:         ffi_stubgen.ml
+  ByteOpt:        -warn-error +1..45
+  NativeOpt:      -warn-error +1..45
+  BuildDepends:   relic_bindings
+
+Executable ffi_types_stubgen
+  Install:        false
+  Path:           stubgen
+  MainIs:         ffi_types_stubgen.ml
+  ByteOpt:        -warn-error +1..45
+  NativeOpt:      -warn-error +1..45
+  BuildDepends:   relic_bindings
+
+Executable test_relic
+  Install:        false
+  Path:           lib_test
+  MainIs:         test_relic.ml
+  CompiledObject: best
+  ByteOpt:        -warn-error +1..45
+  NativeOpt:      -warn-error +1..45
+  BuildDepends:   relic, oUnit
+
+Test test_relic
+  Command: $test_relic -runner sequential

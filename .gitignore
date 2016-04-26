@@ -1,0 +1,12 @@
+Makefile
+configure
+myocamlbuild.ml
+_tags
+setup.ml
+bindings/META
+bindings/relic_bindings.mldylib
+bindings/relic_bindings.mllib
+lib/META
+lib/librelic_stubs.clib
+lib/relic.mldylib
+lib/relic.mllib

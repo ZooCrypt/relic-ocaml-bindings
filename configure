@@ -1,0 +1,9 @@
+#!/bin/sh
+
+trap "rm -f relic_check" EXIT
+(cc stubgen/relic_check.c -lrelic -o relic_check 2>/dev/null \
+    && ./relic_check 2>&1 >/dev/null) ||
+  echo "Package needs relic headers and library to be installed on your system."; exit 1
+
+# OASIS_START
+# OASIS_STOP
