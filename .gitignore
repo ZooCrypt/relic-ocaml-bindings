@@ -10,3 +10,8 @@ lib/META
 lib/librelic_stubs.clib
 lib/relic.mldylib
 lib/relic.mllib
+_build/*
+*.byte
+*.native
+setup.data
+setup.log
