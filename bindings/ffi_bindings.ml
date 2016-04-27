@@ -6,7 +6,9 @@ open Ctypes
 
 module Types (F: Cstubs.Types.TYPE) = struct
   open F
-  let sts_ok  = constant "STS_OK" int
+  let sts_ok = constant "STS_OK" int
+  let bn_pos = constant "BN_POS" int
+  let bn_neg = constant "BN_NEG" int
 end
 
 (* ** Bindings module *)

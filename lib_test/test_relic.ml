@@ -7,7 +7,7 @@ let t_bn =
   "bn" >:: fun () ->
    assert_equal (R.core_init ()) R.sts_ok;
    for i = 0 to 10 do
-     ignore (R.bn_rand 256)
+     ignore (R.bn_rand 1)
    done
    
 let _ =
