@@ -26,6 +26,11 @@ module Internal = struct
   let bn_write_str = R.bn_write_str
 end
 
+(* ** Finalizers *)
+
+let bn_free bn =
+  Gc.finalise Internal.bn_free bn
+
 let bn_rand ?(pos=false) ~bits =
   let open Internal in
   let bn_p = R.Bn.allocate () in (* allocate bn_t which is a pointer to a structure *)

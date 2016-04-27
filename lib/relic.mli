@@ -23,3 +23,4 @@ end
 val bn_rand : ?pos:bool -> bits:int -> bn
 val bn_size_str  : bn -> int -> int
 val bn_write_str : bn -> int -> string
+val bn_free : bn -> unit
