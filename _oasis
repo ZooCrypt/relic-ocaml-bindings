@@ -2,7 +2,7 @@ OASISFormat:    0.4
 Name:           relic
 Version:        0.0.1
 Synopsis:       OCaml bindings for the Relic library
-Authors:        Benedikt Schmidt <beschmi@gmail.com>
+Authors:        Benedikt Schmidt <beschmi@gmail.com>, Miguel Ambrona <miguel.ambrona@imdea.org>
 License:        MIT
 Plugins:        DevFiles (0.4), META (0.4)
 BuildTools:     ocamlbuild

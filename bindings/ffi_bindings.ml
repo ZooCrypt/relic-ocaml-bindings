@@ -1,4 +1,5 @@
-(* * Bindings for Lean *)
+(* * Bindings for Relic *)
+
 open Ctypes
 
 (* ** Types module *)
@@ -41,7 +42,6 @@ module Bindings (F : Cstubs.FOREIGN) = struct
 
   let bn = Bn.t
 
-  let bn_null = foreign "bn_null" (bn @-> returning void)
   let bn_new  = foreign "bn_new"  (bn @-> returning void)
   let bn_free = foreign "bn_free" (bn @-> returning void)
 
@@ -49,6 +49,5 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_set_dig = foreign "bn_set_dig"  (bn @-> uint64_t @-> returning void)
   let bn_set_2b  = foreign "bn_set_dig"  (bn @-> int @-> returning void)
   let bn_rand    = foreign "bn_rand"     (bn @-> int @-> int @-> returning void)
-
 end
                                          
