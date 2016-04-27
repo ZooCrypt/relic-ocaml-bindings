@@ -28,12 +28,11 @@ end
 
 (* ** Finalizers *)
 
-let bn_free bn =
-  Gc.finalise Internal.bn_free bn
+let deref_bn bn = Gc.finalise Internal.bn_free bn
 
 let bn_rand ?(pos=false) ~bits =
   let open Internal in
-  let bn_p = R.Bn.allocate () in (* allocate bn_t which is a pointer to a structure *)
+  let bn_p = R.Bn.allocate ~finalise:deref_bn () in (* allocate bn_t which is a pointer to a structure *)
   bn_new bn_p;                   (* allocate bn_st, the actual struct with the values *)
   let bn = !@ bn_p in
   bn_rand bn bn_pos bits;
