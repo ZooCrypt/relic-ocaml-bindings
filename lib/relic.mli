@@ -15,6 +15,11 @@ module Internal : sig
   val bn_set_dig : bn -> Unsigned.UInt64.t -> unit
   val bn_set_2b  : bn -> int -> unit
   val bn_rand    : bn -> int -> int -> unit
+
+  val bn_size_str : bn -> int -> int
+  val bn_write_str : char ptr -> int -> bn -> int -> unit
 end
 
 val bn_rand : ?pos:bool -> bits:int -> bn
+val bn_size_str  : bn -> int -> int
+val bn_write_str : bn -> int -> string

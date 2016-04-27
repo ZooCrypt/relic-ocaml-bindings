@@ -7,8 +7,11 @@ let t_bn =
   "bn" >:: fun () ->
    assert_equal (R.core_init ()) R.sts_ok;
    assert_equal (R.pc_param_set_any ()) R.sts_ok;
-   for i = 0 to 1000 do
-     ignore (R.bn_rand 256)
+   for i = 0 to 10 do
+     let n = R.bn_rand 256 in
+     let a = R.bn_size_str n 2 in
+     let b = R.bn_write_str n 10 in
+     F.printf "%d -> %s\n" a b;
    done
    
 let _ =

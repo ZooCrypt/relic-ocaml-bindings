@@ -45,9 +45,9 @@ module Bindings (F : Cstubs.FOREIGN) = struct
 (* *** Big numbers *)
 
   module Bn = Typedef(struct let type_name = "bn_t" end)
-
+    
   let bn = Bn.t
-
+    
   let bn_new  = foreign "w_bn_new" (ptr bn @-> returning void)
   let bn_free = foreign "bn_free" (bn @-> returning void)
 
@@ -55,5 +55,8 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_set_dig = foreign "bn_set_dig"  (bn @-> uint64_t @-> returning void)
   let bn_set_2b  = foreign "bn_set_dig"  (bn @-> int @-> returning void)
   let bn_rand    = foreign "bn_rand"     (bn @-> int @-> int @-> returning void)
+
+  let bn_size_str = foreign "bn_size_str" (bn @-> int @-> returning int)
+  let bn_write_str = foreign "bn_write_str" (ptr char @-> int @-> bn @-> int @-> returning void)
 end
                                          
