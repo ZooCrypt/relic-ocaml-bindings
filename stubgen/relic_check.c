@@ -2,7 +2,6 @@
 #include <assert.h>
 
 #include <relic/relic.h>
-// #include <relic/relic_test.h>
 
 int pairing_check(){
   bn_t n, a, b, ab;

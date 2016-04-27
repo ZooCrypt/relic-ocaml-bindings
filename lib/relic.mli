@@ -1,11 +1,14 @@
+open Ctypes
+
 val sts_ok : int
 
 val core_init : unit -> int
+val pc_param_set_any : unit -> int
 
 type bn
 
 module Internal : sig
-  val bn_new  : bn -> unit
+  val bn_new  : bn ptr -> unit
   val bn_free : bn -> unit
 
   val bn_mod     : bn -> bn -> bn -> unit

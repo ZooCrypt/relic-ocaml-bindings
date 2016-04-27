@@ -9,6 +9,7 @@ let bn_pos = RT.bn_pos
 let bn_neg = RT.bn_neg
 
 let core_init = R.core_init
+let pc_param_set_any = R.pc_param_set_any
 
 type bn = R.Bn.t
 
@@ -24,7 +25,8 @@ end
 
 let bn_rand ?(pos=false) ~bits =
   let open Internal in
-  let bn = !@(R.Bn.allocate ()) in (* allocate bn_t which is a pointer to a structure *)
-  bn_new bn;                       (* allocate bn_st, the actual struct with the values *)
+  let bn_p = R.Bn.allocate () in (* allocate bn_t which is a pointer to a structure *)
+  bn_new bn_p;                   (* allocate bn_st, the actual struct with the values *)
+  let bn = !@ bn_p in
   bn_rand bn bn_pos bits;
   bn

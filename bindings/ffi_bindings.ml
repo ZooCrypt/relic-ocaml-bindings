@@ -22,6 +22,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
     type t
     val t : t Ctypes.typ
     val allocate : ?finalise:(t -> unit) -> unit -> t ptr
+    val to_string : t -> string
   end = struct
     type t = unit ptr
     let t = typedef (ptr void) TN.type_name
@@ -32,11 +33,14 @@ module Bindings (F : Cstubs.FOREIGN) = struct
         | None   -> None
       in
       allocate ?finalise t null
+    let to_string p =
+      Nativeint.to_string @@ raw_address_of_ptr p
   end
 
 (* *** Initialization *)
 
   let core_init = foreign "core_init" (void @-> returning int)
+  let pc_param_set_any = foreign "pc_param_set_any" (void @-> returning int)
 
 (* *** Big numbers *)
 
@@ -44,7 +48,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
 
   let bn = Bn.t
 
-  let bn_new  = foreign "bn_new"  (bn @-> returning void)
+  let bn_new  = foreign "w_bn_new" (ptr bn @-> returning void)
   let bn_free = foreign "bn_free" (bn @-> returning void)
 
   let bn_mod     = foreign "bn_mod"      (bn @-> bn @-> bn @-> returning void)

@@ -12,7 +12,7 @@ Library relic
   FindlibName:      relic
   Modules:          Relic
   InternalModules:  Ffi_generated, Ffi_generated_types
-  CSources:         ffi_generated_stubs.c
+  CSources:         ffi_generated_stubs.c, relic_wrapper.c, relic_wrapper.h
   CCOpt:            -I $pkg_ctypes_stubs
   CCLib:            -lrelic
   ByteOpt:          -warn-error +1..45
