@@ -68,6 +68,10 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   
 (* *** Groups *)
 
+  let pc_param_level  = foreign "pc_param_level"  (void @-> returning int)
+  let pc_map_is_type1 = foreign "pc_map_is_type1" (void @-> returning bool)
+  let pc_map_is_type3 = foreign "pc_map_is_type3" (void @-> returning bool)
+
 (* **** G1 *)
     
   module G1 = Typedef(struct let type_name = "g1_t" end)
@@ -87,4 +91,60 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let g1_size_bin  = foreign "g1_size_bin"  (g1 @-> int @-> returning int)
   let g1_read_bin  = foreign "g1_read_bin"  (g1 @-> ptr char @-> int @-> returning void)
   let g1_write_bin = foreign "g1_write_bin" (ptr char @-> int @-> g1 @-> int @-> returning void)
+  let g1_neg       = foreign "g1_neg"       (g1 @-> g1 @-> returning void)
+  let g1_add       = foreign "g1_add"       (g1 @-> g1 @-> g1 @-> returning void)
+  let g1_sub       = foreign "g1_sub"       (g1 @-> g1 @-> g1 @-> returning void)
+  let g1_mul       = foreign "g1_mul"       (g1 @-> g1 @-> bn @-> returning void)
+  let g1_norm      = foreign "g1_norm"      (g1 @-> g1 @-> returning void)
+  let g1_mul_gen   = foreign "g1_mul_gen"   (g1 @-> bn @-> returning void)
+
+(* **** G2 *)
+    
+  module G2 = Typedef(struct let type_name = "g2_t" end)
+    
+  let g2 = G2.t
+    
+  let g2_new  = foreign "w_g2_new" (ptr g2 @-> returning void)
+  let g2_free = foreign "g2_free" (g2 @-> returning void)
+    
+  let g2_get_gen   = foreign "g2_get_gen"   (g2 @-> returning void)    
+  let g2_get_ord   = foreign "g2_get_ord"   (bn @-> returning void)
+  let g2_is_infty  = foreign "g2_is_infty"  (g2 @-> returning bool)
+  let g2_set_infty = foreign "g2_set_infty" (g2 @-> returning void)
+  let g2_cmp       = foreign "g2_cmp"       (g2 @-> g2 @-> returning int)
+  let g2_rand      = foreign "g2_rand"      (g2 @-> returning void)
+  let g2_is_valid  = foreign "g2_is_valid"  (g2 @-> returning bool)
+  let g2_size_bin  = foreign "g2_size_bin"  (g2 @-> int @-> returning int)
+  let g2_read_bin  = foreign "g2_read_bin"  (g2 @-> ptr char @-> int @-> returning void)
+  let g2_write_bin = foreign "g2_write_bin" (ptr char @-> int @-> g2 @-> int @-> returning void)
+  let g2_neg       = foreign "g2_neg"       (g2 @-> g2 @-> returning void)
+  let g2_add       = foreign "g2_add"       (g2 @-> g2 @-> g2 @-> returning void)
+  let g2_sub       = foreign "g2_sub"       (g2 @-> g2 @-> g2 @-> returning void)
+  let g2_mul       = foreign "g2_mul"       (g2 @-> g2 @-> bn @-> returning void)
+  let g2_norm      = foreign "g2_norm"      (g2 @-> g2 @-> returning void)
+  let g2_mul_gen   = foreign "g2_mul_gen"   (g2 @-> bn @-> returning void)
+
+(* **** GT *)
+(*  
+  module Gt = Typedef(struct let type_name = "gt_t" end)
+    
+  let gt = Gt.t
+
+  let gt_new  = foreign "w_gt_new" (ptr gt @-> returning void)
+  let gt_free = foreign "gt_free" (gt @-> returning void)
+
+  let gt_get_gen   = foreign "gt_get_gen"   (gt @-> returning void)    
+  let gt_get_ord   = foreign "gt_get_ord"   (bn @-> returning void)
+  let gt_is_unity  = foreign "gt_is_unity"  (gt @-> returning bool)
+  let gt_zero      = foreign "gt_zero"      (gt @-> returning void)
+  let gt_set_unity = foreign "gt_set_unity" (gt @-> returning void)
+  let gt_cmp       = foreign "gt_cmp"       (gt @-> gt @-> returning int)
+  let gt_rand      = foreign "gt_rand"      (gt @-> returning void)
+  let gt_size_bin  = foreign "gt_size_bin"  (gt @-> int @-> returning int)
+  let gt_read_bin  = foreign "gt_read_bin"  (gt @-> ptr char @-> int @-> returning void)
+  let gt_write_bin = foreign "gt_write_bin" (ptr char @-> int @-> gt @-> int @-> returning void)
+  let gt_inv       = foreign "gt_inv"       (gt @-> gt @-> returning void)
+  let gt_mul       = foreign "gt_mul"       (gt @-> gt @-> gt @-> returning void)
+  let gt_exp       = foreign "gt_exp"       (gt @-> gt @-> bn @-> returning void)
+*)
 end

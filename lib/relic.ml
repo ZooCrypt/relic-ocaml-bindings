@@ -19,6 +19,8 @@ let pc_param_set_any = R.pc_param_set_any
 
 type bn = R.Bn.t
 type g1 = R.G1.t
+type g2 = R.G2.t
+(*type gt = R.Gt.t*)
 
 module Internal = struct
   let bn_new  = R.bn_new
@@ -32,6 +34,10 @@ module Internal = struct
   let bn_size_str = R.bn_size_str
   let bn_write_str = R.bn_write_str
 
+  let pc_param_level  = R.pc_param_level
+  let pc_map_is_type1 = R.pc_map_is_type1
+  let pc_map_is_type3 = R.pc_map_is_type3
+
   let g1_new       = R.g1_new
   let g1_free      = R.g1_free
   let g1_get_gen   = R.g1_get_gen
@@ -44,6 +50,49 @@ module Internal = struct
   let g1_size_bin  = R.g1_size_bin
   let g1_read_bin  = R.g1_read_bin
   let g1_write_bin = R.g1_write_bin
+  let g1_neg       = R.g1_neg
+  let g1_add       = R.g1_add
+  let g1_sub       = R.g1_sub
+  let g1_mul       = R.g1_mul
+  let g1_norm      = R.g1_norm
+  let g1_mul_gen   = R.g1_mul_gen
+
+  let g2_new       = R.g2_new
+  let g2_free      = R.g2_free
+  let g2_get_gen   = R.g2_get_gen
+  let g2_get_ord   = R.g2_get_ord
+  let g2_is_infty  = R.g2_is_infty
+  let g2_set_infty = R.g2_set_infty
+  let g2_cmp       = R.g2_cmp
+  let g2_rand      = R.g2_rand
+  let g2_is_valid  = R.g2_is_valid
+  let g2_size_bin  = R.g2_size_bin
+  let g2_read_bin  = R.g2_read_bin
+  let g2_write_bin = R.g2_write_bin
+  let g2_neg       = R.g2_neg
+  let g2_add       = R.g2_add
+  let g2_sub       = R.g2_sub
+  let g2_mul       = R.g2_mul
+  let g2_norm      = R.g2_norm
+  let g2_mul_gen   = R.g2_mul_gen
+
+(*
+  let gt_new       = R.gt_new
+  let gt_free      = R.gt_free
+  let gt_get_gen   = R.gt_get_gen
+  let gt_get_ord   = R.gt_get_ord
+  let gt_is_unity  = R.gt_is_unity
+  let gt_zero      = R.gt_zero
+  let gt_set_unity = R.gt_set_unity
+  let gt_cmp       = R.gt_cmp
+  let gt_rand      = R.gt_rand
+  let gt_size_bin  = R.gt_size_bin
+  let gt_read_bin  = R.gt_read_bin
+  let gt_write_bin = R.gt_write_bin
+  let gt_inv       = R.gt_inv
+  let gt_mul       = R.gt_mul
+  let gt_exp       = R.gt_exp
+  *)
 end
 
 (* ** Finalizers *)
@@ -51,6 +100,10 @@ end
 let deref_bn bn = Gc.finalise Internal.bn_free bn
 
 let deref_g1 g1 = Gc.finalise Internal.g1_free g1
+
+let deref_g2 g2 = Gc.finalise Internal.g2_free g2
+
+(*let deref_gt gt = Gc.finalise Internal.gt_free gt*)
 
 (* ** Big numbers *)
 
@@ -71,9 +124,18 @@ let bn_write_str bn radix =
   let n_chars = bn_size_str bn radix in
   let buf = Ctypes.allocate_n char ~count:n_chars in
   let _ = Internal.bn_write_str buf n_chars bn radix in
-  coerce (ptr char) string buf
+  Ctypes.coerce (ptr char) string buf
 
 (* ** Groups *)
+
+let compress_flag compress = if compress then 1 else 0
+
+let pc_param_level () = Internal.pc_param_level ()
+
+let pc_map_type () =
+  if Internal.pc_map_is_type1 ()      then 1
+  else if Internal.pc_map_is_type1 () then 3
+  else -1
 
 (* *** G1 *)
 
@@ -92,10 +154,10 @@ let g1_ord () =
   Internal.g1_get_ord bn;
   bn
   
-let g1_is_unity g1 =
+let g1_is_infty g1 =
   Internal.g1_is_infty g1
 
-let g1_unity () =
+let g1_infty () =
   let g1 = allocate_g1 () in
   Internal.g1_set_infty g1;
   g1
@@ -112,21 +174,223 @@ let g1_rand () =
 let g1_is_valid g1 =
   Internal.g1_is_valid g1
 
-let g1_size_bin g1 =
-  let flag = 0 in
+let g1_size_bin ?(compress=false) g1 =
+  let flag = compress_flag compress in
   Internal.g1_size_bin g1 flag
 
 let g1_read_bin str =
   let g1 = allocate_g1 () in
   let length = String.length str in
   let buf = Ctypes.allocate_n char ~count:length in
-  (* buf <-@ str; *) (* FIXME *)
+  for i = 0 to length-1 do
+    buf +@ i <-@ str.[i];
+    ()
+  done;
   Internal.g1_read_bin g1 buf length;
   g1
 
-let g1_write_bin g1 =
-  let flag = 0 in
+let g1_write_bin ?(compress=false) g1 =
+  let flag = compress_flag compress in
   let n_chars = Internal.g1_size_bin g1 flag in
   let buf = Ctypes.allocate_n char ~count:n_chars in
   let _ = Internal.g1_write_bin buf n_chars g1 flag in
-  coerce (ptr char) string buf
+  Ctypes.string_from_ptr buf ~length:n_chars
+
+let g1_neg g1 =
+  let res = allocate_g1 () in
+  Internal.g1_neg res g1;
+  res
+
+let g1_add g1 g1' =
+  let res = allocate_g1 () in
+  Internal.g1_add res g1 g1';
+  res
+
+let g1_sub g1 g1' =
+  let res = allocate_g1 () in
+  Internal.g1_sub res g1 g1';
+  res
+
+let g1_mul g1 k =
+  let res = allocate_g1 () in
+  Internal.g1_mul res g1 k;
+  res
+
+let g1_norm g1 =
+  let res = allocate_g1 () in
+  Internal.g1_norm res g1;
+  res
+
+let g1_mul_gen k =
+  let res = allocate_g1 () in
+  Internal.g1_mul_gen res k;
+  res
+
+
+(* *** G2 *)
+
+
+let allocate_g2 () =
+  let g2_p = R.G2.allocate ~finalise:deref_g2 () in
+  Internal.g2_new g2_p;
+  !@ g2_p  
+
+let g2_gen () =
+  let g2 = allocate_g2 () in
+  Internal.g2_get_gen g2;
+  g2
+
+let g2_ord () =
+  let bn = allocate_bn () in
+  Internal.g2_get_ord bn;
+  bn
+  
+let g2_is_infty g2 =
+  Internal.g2_is_infty g2
+
+let g2_infty () =
+  let g2 = allocate_g2 () in
+  Internal.g2_set_infty g2;
+  g2
+
+let g2_equal g2 g2' =
+  if (Internal.g2_cmp g2 g2') = cmp_eq then true
+  else false
+
+let g2_rand () =
+  let g2 = allocate_g2 () in
+  Internal.g2_rand g2;
+  g2
+
+let g2_is_valid g2 =
+  Internal.g2_is_valid g2
+
+let g2_size_bin ?(compress=false) g2 =
+  let flag = compress_flag compress in
+  Internal.g2_size_bin g2 flag
+
+let g2_read_bin str =
+  let g2 = allocate_g2 () in
+  let length = String.length str in
+  let buf = Ctypes.allocate_n char ~count:length in
+  for i = 0 to length-1 do
+    buf +@ i <-@ str.[i];
+    ()
+  done;
+  Internal.g2_read_bin g2 buf length;
+  g2
+
+let g2_write_bin ?(compress=false) g2 =
+  let flag = compress_flag compress in
+  let n_chars = Internal.g2_size_bin g2 flag in
+  let buf = Ctypes.allocate_n char ~count:n_chars in
+  let _ = Internal.g2_write_bin buf n_chars g2 flag in
+  Ctypes.string_from_ptr buf ~length:n_chars
+
+let g2_neg g2 =
+  let res = allocate_g2 () in
+  Internal.g2_neg res g2;
+  res
+
+let g2_add g2 g2' =
+  let res = allocate_g2 () in
+  Internal.g2_add res g2 g2';
+  res
+
+let g2_sub g2 g2' =
+  let res = allocate_g2 () in
+  Internal.g2_sub res g2 g2';
+  res
+
+let g2_mul g2 k =
+  let res = allocate_g2 () in
+  Internal.g2_mul res g2 k;
+  res
+
+let g2_norm g2 =
+  let res = allocate_g2 () in
+  Internal.g2_norm res g2;
+  res
+
+let g2_mul_gen k =
+  let res = allocate_g2 () in
+  Internal.g2_mul_gen res k;
+  res
+
+
+(* *** Gt *)
+(*
+let allocate_gt () =
+  let gt_p = R.Gt.allocate ~finalise:deref_gt () in
+  Internal.gt_new gt_p;
+  !@ gt_p  
+
+let gt_gen () =
+  let gt = allocate_gt () in
+  Internal.gt_get_gen gt;
+  gt
+
+let gt_ord () =
+  let bn = allocate_bn () in
+  Internal.gt_get_ord bn;
+  bn
+  
+let gt_is_unity gt =
+  Internal.gt_is_unity gt
+
+let gt_zero () =
+  let gt = allocate_gt () in
+  Internal.gt_zero gt;
+  gt
+
+let gt_unity () =
+  let gt = allocate_gt () in
+  Internal.gt_set_unity gt;
+  gt
+
+let gt_equal gt gt' =
+  if (Internal.gt_cmp gt gt') = cmp_eq then true
+  else false
+
+let gt_rand () =
+  let gt = allocate_gt () in
+  Internal.gt_rand gt;
+  gt
+
+let gt_size_bin ?(compress=false) gt =
+  let flag = compress_flag compress in
+  Internal.gt_size_bin gt flag
+
+let gt_read_bin str =
+  let gt = allocate_gt () in
+  let length = String.length str in
+  let buf = Ctypes.allocate_n char ~count:length in
+  for i = 0 to length-1 do
+    buf +@ i <-@ str.[i];
+    ()
+  done;
+  Internal.gt_read_bin gt buf length;
+  gt
+
+let gt_write_bin ?(compress=false) gt =
+  let flag = compress_flag compress in
+  let n_chars = Internal.gt_size_bin gt flag in
+  let buf = Ctypes.allocate_n char ~count:n_chars in
+  let _ = Internal.gt_write_bin buf n_chars gt flag in
+  Ctypes.string_from_ptr buf ~length:n_chars
+
+let gt_inv gt =
+  let res = allocate_gt () in
+  Internal.gt_inv res gt;
+  res
+
+let gt_mul gt gt' =
+  let res = allocate_gt () in
+  Internal.gt_mul res gt gt';
+  res
+
+let gt_exp gt k =
+  let res = allocate_gt () in
+  Internal.gt_exp res gt k;
+  res
+*)
