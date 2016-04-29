@@ -1,6 +1,22 @@
 open Ctypes
 
 val sts_ok : int
+val sts_ok : int
+val sts_err : int
+
+val cmp_lt : int
+val cmp_eq : int
+val cmp_gt : int
+val cmp_ne : int
+
+val bn_pos : int
+val bn_neg : int
+
+val fp_digs  : int
+val fp_bytes : int
+val fp_digit : int
+val align    : int
+val fp_size  : int
 
 val core_init : unit -> int
 val pc_param_set_any : unit -> int
@@ -8,7 +24,7 @@ val pc_param_set_any : unit -> int
 type bn
 type g1
 type g2
-(*type gt*)
+type gt
 
 module Internal : sig
   val bn_new  : bn ptr -> unit
@@ -64,9 +80,9 @@ module Internal : sig
   val g2_norm      : g2 -> g2 -> unit
   val g2_mul_gen   : g2 -> bn -> unit
 
- (* val gt_new       : gt ptr -> unit
+  val gt_new       : gt ptr -> unit
   val gt_free      : gt -> unit
-  val gt_get_gen   : gt -> unit
+(*  val gt_get_gen   : gt -> unit
   val gt_get_ord   : bn -> unit
   val gt_is_unity  : gt -> bool
   val gt_zero      : gt -> unit

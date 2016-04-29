@@ -14,13 +14,19 @@ let cmp_ne = RT.cmp_ne
 let bn_pos = RT.bn_pos
 let bn_neg = RT.bn_neg
 
+let fp_digs  = RT.fp_digs
+let fp_bytes = RT.fp_bytes
+let fp_digit = RT.fp_digit
+let align    = RT.align
+let fp_size  = R.fp_size
+
 let core_init = R.core_init
 let pc_param_set_any = R.pc_param_set_any
 
 type bn = R.Bn.t
 type g1 = R.G1.t
 type g2 = R.G2.t
-(*type gt = R.Gt.t*)
+type gt = R.Gt.t
 
 module Internal = struct
   let bn_new  = R.bn_new
@@ -76,10 +82,9 @@ module Internal = struct
   let g2_norm      = R.g2_norm
   let g2_mul_gen   = R.g2_mul_gen
 
-(*
   let gt_new       = R.gt_new
   let gt_free      = R.gt_free
-  let gt_get_gen   = R.gt_get_gen
+(*  let gt_get_gen   = R.gt_get_gen
   let gt_get_ord   = R.gt_get_ord
   let gt_is_unity  = R.gt_is_unity
   let gt_zero      = R.gt_zero
@@ -98,6 +103,11 @@ end
 (* ** Finalizers *)
 
 let deref_bn bn = Gc.finalise Internal.bn_free bn
+(*
+let deref_ptr finaliser e_p =
+  let e = !@e_p in
+  Gc.finalise finaliser e;
+  e*)
 
 let deref_g1 g1 = Gc.finalise Internal.g1_free g1
 
