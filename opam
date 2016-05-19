@@ -1,7 +1,7 @@
 opam-version: "1.2"
 name:	      "relic"
-maintainer:   "Benedikt Schmidt <beschmi@gmail.com>", "Miguel Ambrona <miguel.ambrona@imdea.org>"
-author:       "Benedikt Schmidt <beschmi@gmail.com>", "Miguel Ambrona <miguel.ambrona@imdea.org>"
+maintainer:   ["Benedikt Schmidt <beschmi@gmail.com>" "Miguel Ambrona <miguel.ambrona@imdea.org>"]
+author:       ["Benedikt Schmidt <beschmi@gmail.com>" "Miguel Ambrona <miguel.ambrona@imdea.org>"]
 version:      "0.0.1"
 
 build: [
