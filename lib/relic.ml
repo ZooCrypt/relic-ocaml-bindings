@@ -84,7 +84,7 @@ module Internal = struct
 
   let gt_new       = R.gt_new
   let gt_free      = R.gt_free
-(*  let gt_get_gen   = R.gt_get_gen
+  let gt_get_gen   = R.gt_get_gen
   let gt_get_ord   = R.gt_get_ord
   let gt_is_unity  = R.gt_is_unity
   let gt_zero      = R.gt_zero
@@ -97,7 +97,7 @@ module Internal = struct
   let gt_inv       = R.gt_inv
   let gt_mul       = R.gt_mul
   let gt_exp       = R.gt_exp
-  *)
+  
 end
 
 (* ** Finalizers *)
@@ -107,20 +107,35 @@ let deref_bn bn = Gc.finalise Internal.bn_free bn
 let deref_ptr finaliser e_p =
   let e = !@e_p in
   Gc.finalise finaliser e;
-  e*)
-
+  e
+*)
 let deref_g1 g1 = Gc.finalise Internal.g1_free g1
 
 let deref_g2 g2 = Gc.finalise Internal.g2_free g2
 
-(*let deref_gt gt = Gc.finalise Internal.gt_free gt*)
+let deref_gt gt_p = Gc.finalise Internal.gt_free gt_p
 
 (* ** Big numbers *)
 
 let allocate_bn () =
   let bn_p = R.Bn.allocate ~finalise:deref_bn () in (* allocate bn_t which is a pointer to a structure *)
   Internal.bn_new bn_p;                   (* allocate bn_st, the actual struct with the values *)
-  !@ bn_p
+  !@bn_p
+
+let bn_mod a m =
+  let bn = allocate_bn () in 
+  Internal.bn_mod bn a m;
+  bn
+
+let bn_from_uint64 n =
+  let bn = allocate_bn () in
+  Internal.bn_set_dig bn n;
+  bn
+
+let bn_2powern n =
+  let bn = allocate_bn () in
+  Internal.bn_set_2b bn n;
+  bn
 
 let bn_rand ?(pos=false) ~bits =
   let bn = allocate_bn () in  
@@ -329,16 +344,16 @@ let g2_mul_gen k =
 
 
 (* *** Gt *)
-(*
+
 let allocate_gt () =
-  let gt_p = R.Gt.allocate ~finalise:deref_gt () in
+  let gt_p = R.Gt.allocate (*~finalise:deref_gt *) () in
   Internal.gt_new gt_p;
-  !@ gt_p  
+  gt_p
 
 let gt_gen () =
-  let gt = allocate_gt () in
-  Internal.gt_get_gen gt;
-  gt
+  let gt_p = allocate_gt () in
+  Internal.gt_get_gen gt_p;
+  !@gt_p
 
 let gt_ord () =
   let bn = allocate_bn () in
@@ -346,61 +361,78 @@ let gt_ord () =
   bn
   
 let gt_is_unity gt =
-  Internal.gt_is_unity gt
+  let gt_p = allocate_gt () in
+  gt_p <-@ gt;
+  Internal.gt_is_unity gt_p
 
 let gt_zero () =
-  let gt = allocate_gt () in
-  Internal.gt_zero gt;
-  gt
+  let gt_p = allocate_gt () in
+  Internal.gt_zero gt_p;
+  !@gt_p
 
 let gt_unity () =
-  let gt = allocate_gt () in
-  Internal.gt_set_unity gt;
-  gt
+  let gt_p = allocate_gt () in
+  Internal.gt_set_unity gt_p;
+  !@gt_p
 
 let gt_equal gt gt' =
-  if (Internal.gt_cmp gt gt') = cmp_eq then true
+  let gt_p  = allocate_gt () in
+  let gt'_p = allocate_gt () in
+  gt_p  <-@ gt;
+  gt'_p <-@ gt';
+  if (Internal.gt_cmp gt_p gt'_p) = cmp_eq then true
   else false
 
 let gt_rand () =
-  let gt = allocate_gt () in
-  Internal.gt_rand gt;
-  gt
+  let gt_p = allocate_gt () in
+  Internal.gt_rand gt_p;
+  !@gt_p
 
 let gt_size_bin ?(compress=false) gt =
   let flag = compress_flag compress in
-  Internal.gt_size_bin gt flag
+  let gt_p = allocate_gt () in
+  gt_p <-@ gt;
+  Internal.gt_size_bin gt_p flag
 
 let gt_read_bin str =
-  let gt = allocate_gt () in
+  let gt_p = allocate_gt () in
   let length = String.length str in
   let buf = Ctypes.allocate_n char ~count:length in
   for i = 0 to length-1 do
     buf +@ i <-@ str.[i];
     ()
   done;
-  Internal.gt_read_bin gt buf length;
-  gt
+  Internal.gt_read_bin gt_p buf length;
+  !@gt_p
 
 let gt_write_bin ?(compress=false) gt =
   let flag = compress_flag compress in
-  let n_chars = Internal.gt_size_bin gt flag in
+  let gt_p = allocate_gt () in
+  gt_p <-@ gt;
+  let n_chars = Internal.gt_size_bin gt_p flag in
   let buf = Ctypes.allocate_n char ~count:n_chars in
-  let _ = Internal.gt_write_bin buf n_chars gt flag in
+  let _ = Internal.gt_write_bin buf n_chars gt_p flag in
   Ctypes.string_from_ptr buf ~length:n_chars
 
 let gt_inv gt =
+  let gt_p = allocate_gt () in
+  gt_p  <-@ gt;
   let res = allocate_gt () in
-  Internal.gt_inv res gt;
-  res
+  Internal.gt_inv res gt_p;
+  !@res
 
 let gt_mul gt gt' =
+  let gt_p  = allocate_gt () in
+  let gt'_p = allocate_gt () in
+  gt_p  <-@ gt;
+  gt'_p <-@ gt';
   let res = allocate_gt () in
-  Internal.gt_mul res gt gt';
-  res
+  Internal.gt_mul res gt_p gt'_p;
+  !@res
 
 let gt_exp gt k =
+  let gt_p  = allocate_gt () in
+  gt_p  <-@ gt;
   let res = allocate_gt () in
-  Internal.gt_exp res gt k;
-  res
-*)
+  Internal.gt_exp res gt_p k;
+  !@res

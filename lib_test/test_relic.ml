@@ -25,6 +25,8 @@ let t_bn =
    F.printf "Curve Type: %d\n" (R.pc_map_type ());
    F.printf "G1 order: %s\n" order;
    F.printf "G1 order size: %d bits\n" (R.bn_size_str (R.g1_ord ()) 2);
+   F.printf "G2 order: %s\n" (R.bn_write_str (R.g2_ord ()) 10);
+   F.printf "Gt order: %s\n" (R.bn_write_str (R.gt_ord ()) 10);
    let g = R.g1_gen () in
    let u = R.g1_infty () in
    F.printf "%b %b\n" (R.g1_is_infty g) (R.g1_is_infty u);
@@ -54,9 +56,22 @@ let t_bn =
    F.printf "g = g': %b\n" (R.g1_equal g g');
    F.printf "g : %d %S\n" (String.length g_str) g_str;
    F.printf "g': %d %S\n" (String.length (R.g1_write_bin g')) (R.g1_write_bin g');
-   
    F.printf "param_level: %d\n" (R.pc_param_level ());
-   F.printf "FP_DIGS: %d\nFP_BYTES: %d\nFP_DIGIT: %d\nALIGN: %d" R.fp_digs R.fp_bytes R.fp_digit R.align;
+   let gt = R.gt_gen () in
+   let gt_0 = R.gt_zero () in
+   let gt_u = R.gt_unity () in
+   F.printf "Is gt = unity? %b\n" (R.gt_is_unity gt);
+   F.printf "Is gt_u = unity? %b\n" (R.gt_is_unity gt_u);
+   F.printf "Is gt_0 = gt_0? %b\n" (R.gt_equal gt_0 gt_0);
+   F.printf "Is gt_0 = gt? %b\n"   (R.gt_equal gt_0 gt);
+   let gt_r = R.gt_rand () in
+   F.printf "gt_r size: %d\n" (R.gt_size_bin gt_r);
+   F.printf "gt_0 size: %d\n" (R.gt_size_bin gt_0);
+   F.printf "gt_r: %S\n" (R.gt_write_bin gt_r);
+   let gt_r_inv = R.gt_inv gt_r in
+   F.printf "gt_0 = gt_r * gt_r_inv? %b\n" (R.gt_equal gt_0 (R.gt_mul gt_r gt_r_inv));
+   F.printf "gt_u = gt_r * gt_r_inv? %b\n" (R.gt_equal gt_u (R.gt_mul gt_r gt_r_inv));
+   let _gt_r' = R.gt_exp gt_r (R.bn_rand 256) in
    ()
    
 let _ =
