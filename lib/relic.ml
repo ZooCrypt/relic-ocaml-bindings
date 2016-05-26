@@ -205,6 +205,7 @@ let g1_read_bin str =
     buf +@ i <-@ str.[i];
     ()
   done;
+  let buf = from_voidp uint8_t (to_voidp buf) in
   Internal.g1_read_bin g1 buf length;
   g1
 
@@ -212,7 +213,9 @@ let g1_write_bin ?(compress=false) g1 =
   let flag = compress_flag compress in
   let n_chars = Internal.g1_size_bin g1 flag in
   let buf = Ctypes.allocate_n char ~count:n_chars in
+  let buf = from_voidp uint8_t (to_voidp buf) in
   let _ = Internal.g1_write_bin buf n_chars g1 flag in
+  let buf = from_voidp char (to_voidp buf) in
   Ctypes.string_from_ptr buf ~length:n_chars
 
 let g1_neg g1 =
@@ -295,6 +298,7 @@ let g2_read_bin str =
     buf +@ i <-@ str.[i];
     ()
   done;
+  let buf = from_voidp uint8_t (to_voidp buf) in
   Internal.g2_read_bin g2 buf length;
   g2
 
@@ -302,7 +306,9 @@ let g2_write_bin ?(compress=false) g2 =
   let flag = compress_flag compress in
   let n_chars = Internal.g2_size_bin g2 flag in
   let buf = Ctypes.allocate_n char ~count:n_chars in
+  let buf = from_voidp uint8_t (to_voidp buf) in
   let _ = Internal.g2_write_bin buf n_chars g2 flag in
+  let buf = from_voidp char (to_voidp buf) in
   Ctypes.string_from_ptr buf ~length:n_chars
 
 let g2_neg g2 =
@@ -387,6 +393,7 @@ let gt_read_bin str =
     buf +@ i <-@ str.[i];
     ()
   done;
+  let buf = from_voidp uint8_t (to_voidp buf) in
   Internal.gt_read_bin !@gt_p buf length;
   !@gt_p
 
@@ -394,7 +401,9 @@ let gt_write_bin ?(compress=false) gt =
   let flag = compress_flag compress in
   let n_chars = Internal.gt_size_bin gt flag in
   let buf = Ctypes.allocate_n char ~count:n_chars in
+  let buf = from_voidp uint8_t (to_voidp buf) in
   let _ = Internal.gt_write_bin buf n_chars gt flag in
+  let buf = from_voidp char (to_voidp buf) in
   Ctypes.string_from_ptr buf ~length:n_chars
 
 let gt_inv gt =

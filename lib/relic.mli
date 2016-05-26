@@ -46,8 +46,8 @@ module Internal : sig
   val g1_rand      : g1 -> unit
   val g1_is_valid  : g1 -> bool
   val g1_size_bin  : g1 -> int -> int
-  val g1_read_bin  : g1 -> char ptr -> int -> unit
-  val g1_write_bin : char ptr -> int -> g1 -> int -> unit
+  val g1_read_bin  : g1 -> Unsigned.UInt8.t ptr -> int -> unit
+  val g1_write_bin : Unsigned.UInt8.t ptr -> int -> g1 -> int -> unit
   val g1_neg       : g1 -> g1 -> unit
   val g1_add       : g1 -> g1 -> g1 -> unit
   val g1_sub       : g1 -> g1 -> g1 -> unit
@@ -65,8 +65,8 @@ module Internal : sig
   val g2_rand      : g2 -> unit
   val g2_is_valid  : g2 -> bool
   val g2_size_bin  : g2 -> int -> int
-  val g2_read_bin  : g2 -> char ptr -> int -> unit
-  val g2_write_bin : char ptr -> int -> g2 -> int -> unit
+  val g2_read_bin  : g2 -> Unsigned.UInt8.t ptr -> int -> unit
+  val g2_write_bin : Unsigned.UInt8.t ptr -> int -> g2 -> int -> unit
   val g2_neg       : g2 -> g2 -> unit
   val g2_add       : g2 -> g2 -> g2 -> unit
   val g2_sub       : g2 -> g2 -> g2 -> unit
@@ -84,8 +84,8 @@ module Internal : sig
   val gt_cmp       : gt -> gt -> int
   val gt_rand      : gt -> unit
   val gt_size_bin  : gt -> int -> int
-  val gt_read_bin  : gt -> char ptr -> int -> unit
-  val gt_write_bin : char ptr -> int -> gt -> int -> unit
+  val gt_read_bin  : gt -> Unsigned.UInt8.t ptr -> int -> unit
+  val gt_write_bin : Unsigned.UInt8.t ptr -> int -> gt -> int -> unit
   val gt_inv       : gt -> gt -> unit
   val gt_mul       : gt -> gt -> gt -> unit
   val gt_exp       : gt -> gt -> bn -> unit

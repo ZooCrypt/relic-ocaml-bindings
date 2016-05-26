@@ -15,15 +15,14 @@ void w_g2_new(g2_t* p){
   g2_new(*p);
 }
 
-
 // wrapper around gt macros:
 
 typedef gt_t* my_gt_t;
 
 void w_gt_new(my_gt_t* p){    
   my_gt_t q = malloc(sizeof(gt_t));
-  gt_new((*q)); // Inner parenthesis are very important because gt_new is a macro.
   *p = q;
+  gt_new((**p)); // Inner parenthesis are very important because gt_new is a macro.
 };
 
 void w_gt_free(my_gt_t p){
@@ -62,12 +61,12 @@ int w_gt_size_bin(my_gt_t p, int f){
   return gt_size_bin((*p), f);
 }
 
-void w_gt_read_bin(my_gt_t p, char *c, int d){
-  gt_read_bin((*p), (*c), d);
+void w_gt_read_bin(my_gt_t p, uint8_t *c, int d){
+  gt_read_bin((*p), c, d);
 }
 
-void w_gt_write_bin(char *c, int f1, my_gt_t p, int f2){
-  gt_write_bin((c), f1, (*p), f2);
+void w_gt_write_bin(uint8_t *c, int f1, my_gt_t p, int f2){
+  gt_write_bin(c, f1, (*p), f2);
 }
 
 void w_gt_inv(my_gt_t p1, my_gt_t p2){

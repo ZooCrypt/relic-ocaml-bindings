@@ -8,7 +8,7 @@ void w_g2_new(g2_t*);
 
 typedef gt_t* my_gt_t;
 
-void w_gt_new(my_gt_t);
+void w_gt_new(my_gt_t*);
 
 void w_gt_free(my_gt_t);
 
@@ -26,9 +26,9 @@ void w_gt_rand(my_gt_t);
 
 int w_gt_size_bin(my_gt_t, int);
 
-void w_gt_read_bin(my_gt_t, char*, int);
+void w_gt_read_bin(my_gt_t, uint8_t*, int);
 
-void w_gt_write_bin(char*, int, my_gt_t, int);
+void w_gt_write_bin(uint8_t*, int, my_gt_t, int);
 
 void w_gt_inv(my_gt_t, my_gt_t);
 
