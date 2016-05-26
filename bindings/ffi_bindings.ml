@@ -49,56 +49,10 @@ module Bindings (F : Cstubs.FOREIGN) = struct
       Nativeint.to_string @@ raw_address_of_ptr p
   end
 
-  module Typedef_array (TN : sig type t val t : t Ctypes.typ val type_name : string val size : int end) : sig
-    type t = TN.t Ctypes_static.carray
-    val t : t Ctypes.typ
-    val allocate : ?finalise:(t -> unit) -> unit -> t ptr 
-  end = struct
-    type t = TN.t Ctypes_static.carray
-    let t = typedef (array TN.size TN.t) TN.type_name
-      
-    let allocate ?finalise () =
-      let finalise = match finalise with
-        | Some f -> Some (fun p -> f !@p)
-        | None   -> None
-      in
-      allocate_n ?finalise t ~count:TN.size
-    let to_string p =
-      Nativeint.to_string @@ raw_address_of_ptr p
-  end
-
-
 (* *** Initialization *)
 
   let core_init = foreign "core_init" (void @-> returning int)
   let pc_param_set_any = foreign "pc_param_set_any" (void @-> returning int)
-
-(* *** Prime field *)
-
-  let fp_size = 4
-  (* DANGER!
-     fp_size is the result of:
-       FP_DIGS+PADDING(FP_BYTES)/(FP_DIGIT/8)
-     where
-       PADDING(A) is defined as
-         if ALIGN > 1 then ((A) % ALIGN) == 0 ? 0 : ALIGN - ((A) % ALIGN)
-         else 0
-     In the default compilation, constants are:
-       - FP_DIGS: 4
-       - FP_BYTES: 32
-       - FP_DIGIT: 64
-       - ALIGN: 1
-     Therefore, 4+PADDING(32)/(64/8) = 4+0/8 = 4.
-  *)
-
-
-  module Dig  = Typedef_ptr(struct let type_name = "dig_t" end)
-  module Fp   = Typedef_array(struct type t = Dig.t let t = Dig.t let type_name = "fp_t" let size = fp_size end)
-  module Fp2  = Typedef_array(struct type t = Fp.t let t = Fp.t let type_name = "fp2_t" let size = 2 end)
-  module Fp3  = Typedef_array(struct type t = Fp.t let t = Fp.t let type_name = "fp3_t" let size = 3 end)
-  module Fp6  = Typedef_array(struct type t = Fp2.t let t = Fp2.t let type_name = "fp6_t" let size = 3 end)
-  module Fp12 = Typedef_array(struct type t = Fp6.t let t = Fp6.t let type_name = "fp12_t" let size = 2 end)
-
 
 (* *** Big numbers *)
 
@@ -109,13 +63,32 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_new  = foreign "w_bn_new" (ptr bn @-> returning void)
   let bn_free = foreign "bn_free"  (bn @-> returning void)
 
-  let bn_mod     = foreign "bn_mod"      (bn @-> bn @-> bn @-> returning void)
   let bn_set_dig = foreign "bn_set_dig"  (bn @-> uint64_t @-> returning void)
   let bn_set_2b  = foreign "bn_set_dig"  (bn @-> int @-> returning void)
-  let bn_rand    = foreign "bn_rand"     (bn @-> int @-> int @-> returning void)
 
-  let bn_size_str = foreign "bn_size_str" (bn @-> int @-> returning int)
+  let bn_add     = foreign "bn_add"      (bn @-> bn @-> bn @-> returning void)
+  let bn_sub     = foreign "bn_sub"      (bn @-> bn @-> bn @-> returning void)
+  let bn_mul     = foreign "bn_mul"      (bn @-> bn @-> bn @-> returning void)
+  let bn_div     = foreign "bn_div"      (bn @-> bn @-> bn @-> returning void)
+  let bn_sqrt    = foreign "bn_sqr"      (bn @-> bn @-> returning void)
+  let bn_mod     = foreign "bn_mod"      (bn @-> bn @-> bn @-> returning void)
+  let bn_gcd     = foreign "bn_gcd"      (bn @-> bn @-> bn @-> returning void)
+  let bn_gcd_ext = foreign "bn_gcd_ext"  (bn @-> bn @-> bn @-> bn @-> bn @-> returning void)
+  let bn_neg     = foreign "bn_neg"      (bn @-> bn @-> returning void)
+  let bn_zero    = foreign "bn_zero"     (bn @-> returning void)
+
+  let bn_is_zero  = foreign "bn_is_zero"  (bn @-> returning int)
+  let bn_cmp      = foreign "bn_cmp"      (bn @-> bn @-> returning int)
+  let bn_is_prime = foreign "bn_is_prime" (bn @-> returning int)
+
+  let bn_rand     = foreign "bn_rand"     (bn @-> int @-> int @-> returning void)
+  let bn_rand_mod = foreign "bn_rand_mod" (bn @-> bn @-> returning void)
+
+  let bn_gen_prime = foreign "bn_gen_prime" (bn @-> int @-> returning void)
+
+  let bn_size_str  = foreign "bn_size_str"  (bn @-> int @-> returning int)
   let bn_write_str = foreign "bn_write_str" (ptr char @-> int @-> bn @-> int @-> returning void)
+  let bn_read_str  = foreign "bn_read_str"  (bn @-> ptr char @-> int @-> int @-> returning void)
   
 (* *** Groups *)
 
@@ -177,27 +150,27 @@ module Bindings (F : Cstubs.FOREIGN) = struct
 
 (* **** GT *)
  
-  (*module Gt = Typedef_ptr(struct let type_name = "gt_t" end)*)
+  module Gt = Typedef_ptr(struct let type_name = "my_gt_t" end)
     
-  module Gt = Fp12
+  (*  module Gt = Fp12*)
 
   let gt = Gt.t
 
   let gt_new  = foreign "w_gt_new" (ptr gt @-> returning void)
-  let gt_free = foreign "w_gt_free" (ptr gt @-> returning void)
+  let gt_free = foreign "w_gt_free" (gt @-> returning void)
 
-  let gt_get_gen   = foreign "w_gt_get_gen"   (ptr gt @-> returning void)
+  let gt_get_gen   = foreign "w_gt_get_gen"   (gt @-> returning void)
   let gt_get_ord   = foreign "gt_get_ord"     (bn @-> returning void)
-  let gt_is_unity  = foreign "w_gt_is_unity"  (ptr gt @-> returning bool)
-  let gt_zero      = foreign "w_gt_zero"      (ptr gt @-> returning void)
-  let gt_set_unity = foreign "w_gt_set_unity" (ptr gt @-> returning void)
-  let gt_cmp       = foreign "w_gt_cmp"       (ptr gt @-> ptr gt @-> returning int)
-  let gt_rand      = foreign "w_gt_rand"      (ptr gt @-> returning void)
-  let gt_size_bin  = foreign "w_gt_size_bin"  (ptr gt @-> int @-> returning int)
-  let gt_read_bin  = foreign "w_gt_read_bin"  (ptr gt @-> ptr char @-> int @-> returning void)
-  let gt_write_bin = foreign "w_gt_write_bin" (ptr char @-> int @-> ptr gt @-> int @-> returning void)
-  let gt_inv       = foreign "w_gt_inv"       (ptr gt @-> ptr gt @-> returning void)
-  let gt_mul       = foreign "w_gt_mul"       (ptr gt @-> ptr gt @-> ptr gt @-> returning void)
-  let gt_exp       = foreign "w_gt_exp"       (ptr gt @-> ptr gt @-> bn @-> returning void)
+  let gt_is_unity  = foreign "w_gt_is_unity"  (gt @-> returning bool)
+  let gt_zero      = foreign "w_gt_zero"      (gt @-> returning void)
+  let gt_set_unity = foreign "w_gt_set_unity" (gt @-> returning void)
+  let gt_cmp       = foreign "w_gt_cmp"       (gt @-> gt @-> returning int)
+  let gt_rand      = foreign "w_gt_rand"      (gt @-> returning void)
+  let gt_size_bin  = foreign "w_gt_size_bin"  (gt @-> int @-> returning int)
+  let gt_read_bin  = foreign "w_gt_read_bin"  (gt @-> ptr char @-> int @-> returning void)
+  let gt_write_bin = foreign "w_gt_write_bin" (ptr char @-> int @-> gt @-> int @-> returning void)
+  let gt_inv       = foreign "w_gt_inv"       (gt @-> gt @-> returning void)
+  let gt_mul       = foreign "w_gt_mul"       (gt @-> gt @-> gt @-> returning void)
+  let gt_exp       = foreign "w_gt_exp"       (gt @-> gt @-> bn @-> returning void)
 
 end

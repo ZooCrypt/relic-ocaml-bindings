@@ -12,12 +12,6 @@ val cmp_ne : int
 val bn_pos : int
 val bn_neg : int
 
-val fp_digs  : int
-val fp_bytes : int
-val fp_digit : int
-val align    : int
-val fp_size  : int
-
 val core_init : unit -> int
 val pc_param_set_any : unit -> int
 
@@ -81,20 +75,20 @@ module Internal : sig
   val g2_mul_gen   : g2 -> bn -> unit
 
   val gt_new       : gt ptr -> unit
-  val gt_free      : gt ptr -> unit
-  val gt_get_gen   : gt ptr -> unit
+  val gt_free      : gt -> unit
+  val gt_get_gen   : gt -> unit
   val gt_get_ord   : bn -> unit
-  val gt_is_unity  : gt ptr -> bool
-  val gt_zero      : gt ptr -> unit
-  val gt_set_unity : gt ptr -> unit
-  val gt_cmp       : gt ptr -> gt ptr -> int
-  val gt_rand      : gt ptr -> unit
-  val gt_size_bin  : gt ptr -> int -> int
-  val gt_read_bin  : gt ptr -> char ptr -> int -> unit
-  val gt_write_bin : char ptr -> int -> gt ptr -> int -> unit
-  val gt_inv       : gt ptr -> gt ptr -> unit
-  val gt_mul       : gt ptr -> gt ptr -> gt ptr -> unit
-  val gt_exp       : gt ptr -> gt ptr -> bn -> unit
+  val gt_is_unity  : gt -> bool
+  val gt_zero      : gt -> unit
+  val gt_set_unity : gt -> unit
+  val gt_cmp       : gt -> gt -> int
+  val gt_rand      : gt -> unit
+  val gt_size_bin  : gt -> int -> int
+  val gt_read_bin  : gt -> char ptr -> int -> unit
+  val gt_write_bin : char ptr -> int -> gt -> int -> unit
+  val gt_inv       : gt -> gt -> unit
+  val gt_mul       : gt -> gt -> gt -> unit
+  val gt_exp       : gt -> gt -> bn -> unit
 
 end
 

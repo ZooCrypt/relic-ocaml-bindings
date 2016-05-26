@@ -14,12 +14,6 @@ let cmp_ne = RT.cmp_ne
 let bn_pos = RT.bn_pos
 let bn_neg = RT.bn_neg
 
-let fp_digs  = RT.fp_digs
-let fp_bytes = RT.fp_bytes
-let fp_digit = RT.fp_digit
-let align    = RT.align
-let fp_size  = R.fp_size
-
 let core_init = R.core_init
 let pc_param_set_any = R.pc_param_set_any
 
@@ -111,9 +105,9 @@ let deref_ptr finaliser e_p =
 *)
 let deref_g1 g1 = Gc.finalise Internal.g1_free g1
 
-let deref_g2 g2 = Gc.finalise Internal.g2_free g2
+let deref_g2 g2 =  Gc.finalise Internal.g2_free g2
 
-let deref_gt gt_p = Gc.finalise Internal.gt_free gt_p
+let deref_gt gt = Gc.finalise Internal.gt_free gt
 
 (* ** Big numbers *)
 
@@ -254,7 +248,6 @@ let g1_mul_gen k =
 
 (* *** G2 *)
 
-
 let allocate_g2 () =
   let g2_p = R.G2.allocate ~finalise:deref_g2 () in
   Internal.g2_new g2_p;
@@ -346,53 +339,45 @@ let g2_mul_gen k =
 (* *** Gt *)
 
 let allocate_gt () =
-  let gt_p = R.Gt.allocate (*~finalise:deref_gt *) () in
+  let gt_p = R.Gt.allocate ~finalise:deref_gt () in
   Internal.gt_new gt_p;
   gt_p
 
 let gt_gen () =
   let gt_p = allocate_gt () in
-  Internal.gt_get_gen gt_p;
+  Internal.gt_get_gen !@gt_p;
   !@gt_p
 
 let gt_ord () =
   let bn = allocate_bn () in
   Internal.gt_get_ord bn;
   bn
-  
+
 let gt_is_unity gt =
-  let gt_p = allocate_gt () in
-  gt_p <-@ gt;
-  Internal.gt_is_unity gt_p
+  Internal.gt_is_unity gt
 
 let gt_zero () =
   let gt_p = allocate_gt () in
-  Internal.gt_zero gt_p;
+  Internal.gt_zero !@gt_p;
   !@gt_p
 
 let gt_unity () =
   let gt_p = allocate_gt () in
-  Internal.gt_set_unity gt_p;
+  Internal.gt_set_unity !@gt_p;
   !@gt_p
 
 let gt_equal gt gt' =
-  let gt_p  = allocate_gt () in
-  let gt'_p = allocate_gt () in
-  gt_p  <-@ gt;
-  gt'_p <-@ gt';
-  if (Internal.gt_cmp gt_p gt'_p) = cmp_eq then true
+  if (Internal.gt_cmp gt gt') = cmp_eq then true
   else false
 
 let gt_rand () =
   let gt_p = allocate_gt () in
-  Internal.gt_rand gt_p;
+  Internal.gt_rand !@gt_p;
   !@gt_p
 
 let gt_size_bin ?(compress=false) gt =
   let flag = compress_flag compress in
-  let gt_p = allocate_gt () in
-  gt_p <-@ gt;
-  Internal.gt_size_bin gt_p flag
+  Internal.gt_size_bin gt flag
 
 let gt_read_bin str =
   let gt_p = allocate_gt () in
@@ -402,37 +387,28 @@ let gt_read_bin str =
     buf +@ i <-@ str.[i];
     ()
   done;
-  Internal.gt_read_bin gt_p buf length;
+  Internal.gt_read_bin !@gt_p buf length;
   !@gt_p
 
 let gt_write_bin ?(compress=false) gt =
   let flag = compress_flag compress in
-  let gt_p = allocate_gt () in
-  gt_p <-@ gt;
-  let n_chars = Internal.gt_size_bin gt_p flag in
+  let n_chars = Internal.gt_size_bin gt flag in
   let buf = Ctypes.allocate_n char ~count:n_chars in
-  let _ = Internal.gt_write_bin buf n_chars gt_p flag in
+  let _ = Internal.gt_write_bin buf n_chars gt flag in
   Ctypes.string_from_ptr buf ~length:n_chars
 
 let gt_inv gt =
-  let gt_p = allocate_gt () in
-  gt_p  <-@ gt;
   let res = allocate_gt () in
-  Internal.gt_inv res gt_p;
+  Internal.gt_inv !@res gt;
   !@res
 
 let gt_mul gt gt' =
-  let gt_p  = allocate_gt () in
-  let gt'_p = allocate_gt () in
-  gt_p  <-@ gt;
-  gt'_p <-@ gt';
   let res = allocate_gt () in
-  Internal.gt_mul res gt_p gt'_p;
+  Internal.gt_mul !@res gt gt';
   !@res
 
 let gt_exp gt k =
-  let gt_p  = allocate_gt () in
-  gt_p  <-@ gt;
   let res = allocate_gt () in
-  Internal.gt_exp res gt_p k;
+  Internal.gt_exp !@res gt k;
   !@res
+

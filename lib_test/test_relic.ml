@@ -3,17 +3,10 @@ open OUnit
 module R = Relic
 module F  = Format
 
-let padding a align = 
-  if align > 1 then
-    if (a mod align) = 0 then 0
-    else align - (a mod align)
-  else 0    
-
 let t_bn =
   "bn" >:: fun () ->
    assert_equal (R.core_init ()) R.sts_ok;
    assert_equal (R.pc_param_set_any ()) R.sts_ok;
-   assert_equal (R.fp_digs + (padding R.fp_bytes R.align) / (R.fp_digit / 8)) R.fp_size;
    for i = 1 to 5 do
      let n = R.bn_rand 256 in
      let a = R.bn_size_str n 2 in
@@ -72,6 +65,10 @@ let t_bn =
    F.printf "gt_0 = gt_r * gt_r_inv? %b\n" (R.gt_equal gt_0 (R.gt_mul gt_r gt_r_inv));
    F.printf "gt_u = gt_r * gt_r_inv? %b\n" (R.gt_equal gt_u (R.gt_mul gt_r gt_r_inv));
    let _gt_r' = R.gt_exp gt_r (R.bn_rand 256) in
+   for i = 1 to 3000000 do
+     let _ = R.gt_zero () in
+     ()
+   done;
    ()
    
 let _ =
