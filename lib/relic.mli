@@ -9,8 +9,8 @@ val cmp_eq : int
 val cmp_gt : int
 val cmp_ne : int
 
-val bn_pos : int
-val bn_neg : int
+val bn_positive : int
+val bn_negative : int
 
 val core_init : unit -> int
 val pc_param_set_any : unit -> int
@@ -24,13 +24,33 @@ module Internal : sig
   val bn_new  : bn ptr -> unit
   val bn_free : bn -> unit
 
-  val bn_mod     : bn -> bn -> bn -> unit
   val bn_set_dig : bn -> Unsigned.UInt64.t -> unit
   val bn_set_2b  : bn -> int -> unit
-  val bn_rand    : bn -> int -> int -> unit
+
+  val bn_add     : bn -> bn -> bn -> unit
+  val bn_sub     : bn -> bn -> bn -> unit
+  val bn_mul     : bn -> bn -> bn -> unit
+  val bn_div     : bn -> bn -> bn -> unit
+  val bn_neg     : bn -> bn -> unit
+  val bn_abs     : bn -> bn -> unit
+  val bn_sqrt    : bn -> bn -> unit
+  val bn_mod     : bn -> bn -> bn -> unit
+  val bn_gcd     : bn -> bn -> bn -> unit
+  val bn_gcd_ext : bn -> bn -> bn -> bn -> bn -> unit
+  val bn_zero    : bn -> unit
+
+  val bn_is_zero  : bn -> bool
+  val bn_cmp      : bn -> bn -> int
+  val bn_is_prime : bn -> bool
+
+  val bn_rand      : bn -> int -> int -> unit
+  val bn_rand_mod  : bn -> bn -> unit
+  val bn_gen_prime : bn -> int -> unit
 
   val bn_size_str  : bn -> int -> int
+  val bn_ham       : bn -> int
   val bn_write_str : char ptr -> int -> bn -> int -> unit
+  val bn_read_str  : bn -> char ptr -> int -> int -> unit
 
   val pc_param_level  : unit -> int
   val pc_map_is_type1 : unit -> bool
@@ -90,14 +110,38 @@ module Internal : sig
   val gt_mul       : gt -> gt -> gt -> unit
   val gt_exp       : gt -> gt -> bn -> unit
 
+  val pc_map : gt -> g1 -> g2 -> unit
 end
 
-val bn_mod         : bn -> bn -> bn
 val bn_from_uint64 : Unsigned.UInt64.t -> bn
 val bn_2powern     : int -> bn
-val bn_rand        : ?pos:bool -> bits:int -> bn
-val bn_size_str    : bn -> int -> int
-val bn_write_str   : bn -> int -> string
+
+val bn_add     : bn -> bn -> bn
+val bn_sub     : bn -> bn -> bn
+val bn_mul     : bn -> bn -> bn
+val bn_div     : bn -> bn -> bn
+val bn_neg     : bn -> bn
+val bn_abs     : bn -> bn
+val bn_sqrt    : bn -> bn
+val bn_mod     : bn -> bn -> bn
+val bn_gcd     : bn -> bn -> bn 
+val bn_gcd_ext : bn -> bn -> bn * bn * bn
+val bn_zero    : unit -> bn
+val bn_one     : unit -> bn
+
+val bn_is_zero  : bn -> bool
+val bn_cmp      : bn -> bn -> int
+val bn_equal    : bn -> bn -> bool
+val bn_is_prime : bn -> bool
+
+val bn_rand      : ?positive:bool -> bits:int -> bn
+val bn_rand_mod  : bn -> bn
+val bn_gen_prime : bits:int -> bn
+
+val bn_size_str  : bn -> radix:int -> int
+val bn_ham       : bn -> int
+val bn_write_str : bn -> radix:int -> string
+val bn_read_str  : string -> radix:int -> bn
 
 val pc_param_level : unit -> int
 val pc_map_type    : unit -> int
@@ -149,3 +193,5 @@ val gt_write_bin : ?compress:bool -> gt -> string
 val gt_inv       : gt -> gt
 val gt_mul       : gt -> gt -> gt
 val gt_exp       : gt -> bn -> gt
+
+val e_pairing    : g1 -> g2 -> gt

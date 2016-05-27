@@ -14,6 +14,18 @@ let t_bn =
      F.printf "%d -> %s\n" a b;
    done
    ;
+   let n = R.bn_from_uint64 (Unsigned.UInt64.of_int 25) in
+   let n2 = R.bn_add n n in
+   let n3 = R.bn_sqrt n in
+   let n4 = R.bn_one () in
+   F.printf "%s (%d HM), %s, %s, %s\n\n" (R.bn_write_str n 10) (R.bn_ham n) (R.bn_write_str n2 10) (R.bn_write_str n3 10) (R.bn_write_str n4 10);
+
+   let prime = R.bn_from_uint64 (Unsigned.UInt64.of_string "70421107") in
+   F.printf "is_prime %s? %b\n" (R.bn_write_str prime 10) (R.bn_is_prime prime);
+   let (d,u,v) = R.bn_gcd_ext n prime in
+   let prod = R.bn_mod (R.bn_mul n u) prime in
+   let u = R.bn_mod u prime in
+   F.printf "%s * %s (mod %s) = %s\n\n" (R.bn_write_str n 10) (R.bn_write_str u 10) (R.bn_write_str prime 10) (R.bn_write_str prod 10);
    let order = R.bn_write_str (R.g1_ord ()) 10 in
    F.printf "Curve Type: %d\n" (R.pc_map_type ());
    F.printf "G1 order: %s\n" order;
@@ -43,7 +55,9 @@ let t_bn =
    F.printf "-random: %S\n" (R.g1_write_bin (R.g1_neg r));
    F.printf "%d %d\n" (R.Internal.g1_size_bin r 0) (R.Internal.g1_size_bin r 1);
    F.printf "gen - gen: %S\n" (R.g1_write_bin (R.g1_add g (R.g1_neg g)));
+
    (* FIXME: It seems g1_read_bin only accepts strings of certain length *)
+
    let g_str = R.g1_write_bin g in
    let g' = R.g1_read_bin g_str in
    F.printf "g = g': %b\n" (R.g1_equal g g');
@@ -65,10 +79,8 @@ let t_bn =
    F.printf "gt_0 = gt_r * gt_r_inv? %b\n" (R.gt_equal gt_0 (R.gt_mul gt_r gt_r_inv));
    F.printf "gt_u = gt_r * gt_r_inv? %b\n" (R.gt_equal gt_u (R.gt_mul gt_r gt_r_inv));
    let _gt_r' = R.gt_exp gt_r (R.bn_rand 256) in
-   for i = 1 to 3000000 do
-     let _ = R.gt_zero () in
-     ()
-   done;
+
+   F.printf "e(g1,g2) = gt? %b" (R.gt_equal (R.e_pairing (R.g1_gen ()) (R.g2_gen ())) gt);
    ()
    
 let _ =

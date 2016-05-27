@@ -11,8 +11,8 @@ let cmp_eq = RT.cmp_eq
 let cmp_gt = RT.cmp_gt
 let cmp_ne = RT.cmp_ne
 
-let bn_pos = RT.bn_pos
-let bn_neg = RT.bn_neg
+let bn_positive = RT.bn_positive
+let bn_negative = RT.bn_negative
 
 let core_init = R.core_init
 let pc_param_set_any = R.pc_param_set_any
@@ -26,13 +26,33 @@ module Internal = struct
   let bn_new  = R.bn_new
   let bn_free = R.bn_free
 
-  let bn_mod     = R.bn_mod
   let bn_set_dig = R.bn_set_dig
   let bn_set_2b  = R.bn_set_2b
-  let bn_rand    = R.bn_rand
+
+  let bn_add     = R.bn_add
+  let bn_sub     = R.bn_sub
+  let bn_mul     = R.bn_mul
+  let bn_div     = R.bn_div
+  let bn_neg     = R.bn_neg
+  let bn_abs     = R.bn_abs
+  let bn_sqrt    = R.bn_sqrt
+  let bn_mod     = R.bn_mod
+  let bn_gcd     = R.bn_gcd
+  let bn_gcd_ext = R.bn_gcd_ext
+  let bn_zero    = R.bn_zero
+
+  let bn_is_zero  = R.bn_is_zero
+  let bn_cmp      = R.bn_cmp
+  let bn_is_prime = R.bn_is_prime
+
+  let bn_rand      = R.bn_rand
+  let bn_rand_mod  = R.bn_rand_mod
+  let bn_gen_prime = R.bn_gen_prime
     
-  let bn_size_str = R.bn_size_str
+  let bn_size_str  = R.bn_size_str
+  let bn_ham       = R.bn_ham
   let bn_write_str = R.bn_write_str
+  let bn_read_str  = R.bn_read_str
 
   let pc_param_level  = R.pc_param_level
   let pc_map_is_type1 = R.pc_map_is_type1
@@ -92,17 +112,13 @@ module Internal = struct
   let gt_mul       = R.gt_mul
   let gt_exp       = R.gt_exp
   
+  let pc_map = R.pc_map
 end
 
 (* ** Finalizers *)
 
 let deref_bn bn = Gc.finalise Internal.bn_free bn
-(*
-let deref_ptr finaliser e_p =
-  let e = !@e_p in
-  Gc.finalise finaliser e;
-  e
-*)
+
 let deref_g1 g1 = Gc.finalise Internal.g1_free g1
 
 let deref_g2 g2 =  Gc.finalise Internal.g2_free g2
@@ -116,11 +132,6 @@ let allocate_bn () =
   Internal.bn_new bn_p;                   (* allocate bn_st, the actual struct with the values *)
   !@bn_p
 
-let bn_mod a m =
-  let bn = allocate_bn () in 
-  Internal.bn_mod bn a m;
-  bn
-
 let bn_from_uint64 n =
   let bn = allocate_bn () in
   Internal.bn_set_dig bn n;
@@ -131,19 +142,117 @@ let bn_2powern n =
   Internal.bn_set_2b bn n;
   bn
 
-let bn_rand ?(pos=false) ~bits =
-  let bn = allocate_bn () in  
-  Internal.bn_rand bn bn_pos bits;
+let bn_opp f =
+  (fun n n' ->
+      let bn = allocate_bn () in
+      f bn n n';
+      bn
+  )
+
+let bn_add = bn_opp Internal.bn_add
+
+let bn_sub = bn_opp Internal.bn_sub
+
+let bn_mul = bn_opp Internal.bn_mul
+
+let bn_div = bn_opp Internal.bn_div
+
+let bn_neg n =
+  let bn = allocate_bn () in
+  Internal.bn_neg bn n;
   bn
 
-let bn_size_str bn radix =
+let bn_abs n =
+  let bn = allocate_bn () in
+  Internal.bn_abs bn n;
+  bn
+
+let bn_sqrt n =
+  let bn = allocate_bn () in
+  Internal.bn_sqrt bn n;
+  bn
+
+let bn_mod a m =
+  let bn = allocate_bn () in 
+  Internal.bn_mod bn a m;
+  bn
+
+let bn_gcd a b =
+  let bn = allocate_bn () in
+  Internal.bn_gcd bn a b;
+  bn
+
+let bn_gcd_ext a b =
+  let d = allocate_bn () in
+  let u = allocate_bn () in
+  let v = allocate_bn () in
+  Internal.bn_gcd_ext d u v a b;
+  (d, u, v)
+
+let bn_zero () =
+  let bn = allocate_bn () in
+  Internal.bn_zero bn;
+  bn
+
+let bn_one () =
+  let bn = allocate_bn () in
+  Internal.bn_set_2b bn 1;
+  bn
+
+let bn_is_zero n =
+  Internal.bn_is_zero n
+
+let bn_cmp n n' =
+  Internal.bn_cmp n n'
+
+let bn_equal n n' =
+  if (Internal.bn_cmp n n') = cmp_eq then true
+  else false
+
+let bn_is_prime n =
+  let two = bn_add (bn_one ()) (bn_one ()) in
+  if bn_cmp n two = cmp_lt then failwith "bn_is_prime: input must be greater or equal than 2"
+  else if bn_cmp n two = cmp_eq then true
+  else Internal.bn_is_prime n
+
+let bn_rand ?(positive=true) ~bits =
+  let bn = allocate_bn () in  
+  let sign = if positive then bn_positive else bn_negative in
+  Internal.bn_rand bn sign bits;
+  bn
+
+let bn_rand_mod m =
+  let bn = allocate_bn () in
+  Internal.bn_rand_mod bn m;
+  bn
+
+let bn_gen_prime ~bits =
+  let bn = allocate_bn () in
+  Internal.bn_gen_prime bn bits;
+  bn
+
+let bn_size_str bn ~radix =
   Internal.bn_size_str bn radix
 
-let bn_write_str bn radix =
+let bn_ham bn =
+  Internal.bn_ham bn
+
+let bn_write_str bn ~radix =
   let n_chars = bn_size_str bn radix in
   let buf = Ctypes.allocate_n char ~count:n_chars in
   let _ = Internal.bn_write_str buf n_chars bn radix in
   Ctypes.coerce (ptr char) string buf
+
+let bn_read_str str ~radix =
+  let bn = allocate_bn () in
+  let length = String.length str in
+  let buf = Ctypes.allocate_n char ~count:length in
+  for i = 0 to length-1 do
+    buf +@ i <-@ str.[i];
+    ()
+  done;
+  Internal.bn_read_str bn buf length radix;
+  bn
 
 (* ** Groups *)
 
@@ -421,3 +530,9 @@ let gt_exp gt k =
   Internal.gt_exp !@res gt k;
   !@res
 
+(* *** Bilinear map *)
+
+let e_pairing g1 g2 =
+  let gt = allocate_gt () in
+  Internal.pc_map !@gt g1 g2;
+  !@gt

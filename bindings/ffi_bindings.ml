@@ -14,8 +14,8 @@ module Types (F: Cstubs.Types.TYPE) = struct
   let cmp_gt  = constant "CMP_GT" int
   let cmp_ne  = constant "CMP_NE" int
 
-  let bn_pos = constant "BN_POS" int
-  let bn_neg = constant "BN_NEG" int
+  let bn_positive = constant "BN_POS" int
+  let bn_negative = constant "BN_NEG" int
 
   let fp_digs = constant "FP_DIGS" int
   let fp_bytes = constant "FP_BYTES" int
@@ -70,23 +70,24 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_sub     = foreign "bn_sub"      (bn @-> bn @-> bn @-> returning void)
   let bn_mul     = foreign "bn_mul"      (bn @-> bn @-> bn @-> returning void)
   let bn_div     = foreign "bn_div"      (bn @-> bn @-> bn @-> returning void)
-  let bn_sqrt    = foreign "bn_sqr"      (bn @-> bn @-> returning void)
+  let bn_neg     = foreign "bn_neg"      (bn @-> bn @-> returning void)
+  let bn_abs     = foreign "bn_abs"      (bn @-> bn @-> returning void)
+  let bn_sqrt    = foreign "bn_srt"      (bn @-> bn @-> returning void)
   let bn_mod     = foreign "bn_mod"      (bn @-> bn @-> bn @-> returning void)
   let bn_gcd     = foreign "bn_gcd"      (bn @-> bn @-> bn @-> returning void)
   let bn_gcd_ext = foreign "bn_gcd_ext"  (bn @-> bn @-> bn @-> bn @-> bn @-> returning void)
-  let bn_neg     = foreign "bn_neg"      (bn @-> bn @-> returning void)
   let bn_zero    = foreign "bn_zero"     (bn @-> returning void)
 
-  let bn_is_zero  = foreign "bn_is_zero"  (bn @-> returning int)
+  let bn_is_zero  = foreign "bn_is_zero"  (bn @-> returning bool)
   let bn_cmp      = foreign "bn_cmp"      (bn @-> bn @-> returning int)
-  let bn_is_prime = foreign "bn_is_prime" (bn @-> returning int)
+  let bn_is_prime = foreign "bn_is_prime_solov" (bn @-> returning bool)
 
-  let bn_rand     = foreign "bn_rand"     (bn @-> int @-> int @-> returning void)
-  let bn_rand_mod = foreign "bn_rand_mod" (bn @-> bn @-> returning void)
-
+  let bn_rand      = foreign "bn_rand"      (bn @-> int @-> int @-> returning void)
+  let bn_rand_mod  = foreign "bn_rand_mod"  (bn @-> bn @-> returning void)
   let bn_gen_prime = foreign "bn_gen_prime" (bn @-> int @-> returning void)
 
   let bn_size_str  = foreign "bn_size_str"  (bn @-> int @-> returning int)
+  let bn_ham       = foreign "bn_ham"       (bn @-> returning int)
   let bn_write_str = foreign "bn_write_str" (ptr char @-> int @-> bn @-> int @-> returning void)
   let bn_read_str  = foreign "bn_read_str"  (bn @-> ptr char @-> int @-> int @-> returning void)
   
@@ -152,8 +153,6 @@ module Bindings (F : Cstubs.FOREIGN) = struct
  
   module Gt = Typedef_ptr(struct let type_name = "my_gt_t" end)
     
-  (*  module Gt = Fp12*)
-
   let gt = Gt.t
 
   let gt_new  = foreign "w_gt_new" (ptr gt @-> returning void)
@@ -173,4 +172,9 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let gt_mul       = foreign "w_gt_mul"       (gt @-> gt @-> gt @-> returning void)
   let gt_exp       = foreign "w_gt_exp"       (gt @-> gt @-> bn @-> returning void)
 
+(* **** Bilinear map *)
+
+  let pc_map = foreign "pc_map"  (gt @-> g1 @-> g2 @-> returning void)
+
 end
+  
