@@ -56,8 +56,6 @@ let test_functions =
    F.printf "%d %d\n" (R.Internal.g1_size_bin r 0) (R.Internal.g1_size_bin r 1);
    F.printf "gen - gen: %S\n" (R.g1_write_bin (R.g1_add g (R.g1_neg g)));
 
-   (* FIXME: It seems g1_read_bin only accepts strings of certain length *)
-
    let g_str = R.g1_write_bin g in
    let g' = R.g1_read_bin g_str in
    F.printf "g = g': %b\n" (R.g1_equal g g');
@@ -112,7 +110,7 @@ let test_pairing =
 
 let _ =
   let suite = "relic" >::: [
-    (* test_functions; *)
+    test_functions;
     test_pairing
       ]
   in

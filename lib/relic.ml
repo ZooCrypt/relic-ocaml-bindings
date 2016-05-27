@@ -14,6 +14,8 @@ let cmp_ne = RT.cmp_ne
 let bn_positive = RT.bn_positive
 let bn_negative = RT.bn_negative
 
+let fp_bytes = RT.fp_bytes
+
 let core_init = R.core_init
 let pc_param_set_any = R.pc_param_set_any
 
@@ -307,6 +309,23 @@ let g1_size_bin ?(compress=false) g1 =
   Internal.g1_size_bin g1 flag
 
 let g1_read_bin str =
+  let _checking =
+    match String.length str with
+    | 1 -> 
+       if str.[0] != '\000' then
+         failwith "Invalid string: first byte expected to be \000"
+       else ()
+    | a when a = (fp_bytes + 1) ->
+       if str.[0] != '\002' && str.[0] != '\003' then
+         failwith "Invalid string: first byte expected to be either \002 or \003"
+       else ()
+    | a when a = (2 * fp_bytes + 1) ->
+       if str.[0] != '\004' then
+         failwith "Invalid string: first byte expected to be \004"
+       else ()
+    | a -> failwith ("Invalid string: " ^ (string_of_int a) ^ " is not one of the accepted lengths:" ^
+       " 1, " ^ (string_of_int (fp_bytes + 1)) ^ ", " ^ (string_of_int (2*fp_bytes + 1)))
+  in
   let g1 = allocate_g1 () in
   let length = String.length str in
   let buf = Ctypes.allocate_n char ~count:length in
@@ -400,6 +419,23 @@ let g2_size_bin ?(compress=false) g2 =
   Internal.g2_size_bin g2 flag
 
 let g2_read_bin str =
+  let _checking =
+    match String.length str with
+    | 1 -> 
+       if str.[0] != '\000' then
+         failwith "Invalid string: first byte expected to be \000"
+       else ()
+    | a when a = (fp_bytes + 1) ->
+       if str.[0] != '\002' && str.[0] != '\003' then
+         failwith "Invalid string: first byte expected to be either \002 or \003"
+       else ()
+    | a when a = (2 * fp_bytes + 1) ->
+       if str.[0] != '\004' then
+         failwith "Invalid string: first byte expected to be \004"
+       else ()
+    | a -> failwith ("Invalid string: " ^ (string_of_int a) ^ " is not one of the accepted lengths:" ^
+       " 1, " ^ (string_of_int (fp_bytes + 1)) ^ ", " ^ (string_of_int (2*fp_bytes + 1)))
+  in
   let g2 = allocate_g2 () in
   let length = String.length str in
   let buf = Ctypes.allocate_n char ~count:length in
@@ -495,6 +531,19 @@ let gt_size_bin ?(compress=false) gt =
   Internal.gt_size_bin gt flag
 
 let gt_read_bin str =
+  let _checking =
+    match String.length str with
+    | a when a = (8 * fp_bytes) ->
+       if str.[0] != '\002' && str.[0] != '\003' then
+         failwith "Invalid string: first byte expected to be either \002 or \003"
+       else ()
+    | a when a = (12 * fp_bytes) ->
+       if str.[0] != '\004' then
+         failwith "Invalid string: first byte expected to be \004"
+       else ()
+    | a -> failwith ("Invalid string: " ^ (string_of_int a) ^ " is not one of the accepted lengths:" ^
+       (string_of_int (8 * fp_bytes)) ^ ", " ^ (string_of_int (12 * fp_bytes)))
+  in
   let gt_p = allocate_gt () in
   let length = String.length str in
   let buf = Ctypes.allocate_n char ~count:length in

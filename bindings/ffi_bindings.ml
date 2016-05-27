@@ -17,10 +17,7 @@ module Types (F: Cstubs.Types.TYPE) = struct
   let bn_positive = constant "BN_POS" int
   let bn_negative = constant "BN_NEG" int
 
-  let fp_digs = constant "FP_DIGS" int
   let fp_bytes = constant "FP_BYTES" int
-  let fp_digit = constant "FP_DIGIT" int
-  let align = constant "ALIGN" int
 end
 
 (* ** Bindings module *)

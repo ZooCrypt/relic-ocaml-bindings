@@ -12,6 +12,8 @@ val cmp_ne : int
 val bn_positive : int
 val bn_negative : int
 
+val fp_bytes : int
+
 val core_init : unit -> int
 val pc_param_set_any : unit -> int
 
@@ -195,3 +197,4 @@ val gt_mul       : gt -> gt -> gt
 val gt_exp       : gt -> bn -> gt
 
 val e_pairing    : g1 -> g2 -> gt
+
