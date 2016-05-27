@@ -3,8 +3,8 @@ open OUnit
 module R = Relic
 module F  = Format
 
-let t_bn =
-  "bn" >:: fun () ->
+let test_functions =
+  "test_functions" >:: fun () ->
    assert_equal (R.core_init ()) R.sts_ok;
    assert_equal (R.pc_param_set_any ()) R.sts_ok;
    for i = 1 to 5 do
@@ -82,10 +82,38 @@ let t_bn =
 
    F.printf "e(g1,g2) = gt? %b" (R.gt_equal (R.e_pairing (R.g1_gen ()) (R.g2_gen ())) gt);
    ()
-   
+
+
+let test_pairing =
+  "test_pairing" >:: fun () ->
+    assert_equal (R.core_init ()) R.sts_ok;
+    assert_equal (R.pc_param_set_any ()) R.sts_ok;
+    
+  (* Get generators in G1 and G2 *)
+    let g1 = R.g1_gen () in
+    let g2 = R.g2_gen () in
+    
+  (* Sample random exponents *)
+    let a = R.bn_rand 256 in
+    let b = R.bn_rand 256 in
+    
+    let ab = R.bn_mul a b in
+    
+    let g1_a = R.g1_mul g1 a in
+    let g2_b = R.g2_mul g2 b in
+    
+  (* Compute pairings *)
+    let z1 = R.e_pairing g1_a g2_b in
+    let z2 = R.gt_exp (R.e_pairing g1 g2) ab in 
+    
+  (* Check *)
+    if R.gt_equal z1 z2 then F.printf "Pairing test succedded!"
+    else assert false
+
 let _ =
   let suite = "relic" >::: [
-        t_bn
+    (* test_functions; *)
+    test_pairing
       ]
   in
   OUnit2.run_test_tt_main @@ ounit2_of_ounit1 suite;
