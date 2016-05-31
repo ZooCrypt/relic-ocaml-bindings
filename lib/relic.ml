@@ -198,7 +198,7 @@ let bn_zero () =
 
 let bn_one () =
   let bn = allocate_bn () in
-  Internal.bn_set_2b bn 1;
+  Internal.bn_set_2b bn 0;
   bn
 
 let bn_is_zero n =
@@ -264,8 +264,8 @@ let pc_param_level () = Internal.pc_param_level ()
 
 let pc_map_type () =
   if Internal.pc_map_is_type1 ()      then 1
-  else if Internal.pc_map_is_type1 () then 3
-  else -1
+  else if Internal.pc_map_is_type3 () then 3
+  else failwith "Unknown type"
 
 (* *** G1 *)
 

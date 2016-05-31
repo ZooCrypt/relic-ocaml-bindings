@@ -61,7 +61,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_free = foreign "bn_free"  (bn @-> returning void)
 
   let bn_set_dig = foreign "bn_set_dig"  (bn @-> uint64_t @-> returning void)
-  let bn_set_2b  = foreign "bn_set_dig"  (bn @-> int @-> returning void)
+  let bn_set_2b  = foreign "bn_set_2b"  (bn @-> int @-> returning void)
 
   let bn_add     = foreign "bn_add"      (bn @-> bn @-> bn @-> returning void)
   let bn_sub     = foreign "bn_sub"      (bn @-> bn @-> bn @-> returning void)
