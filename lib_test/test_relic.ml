@@ -317,28 +317,61 @@ let test_abe =
     let module Predicate_Encoding(Group : Group) = struct
         
       type t = Group.t list
-      let ( +! ) = L.map2_exn ~f:Group.add
-      let ( *. ) t = L.map ~f:(Group.mul t)
-      let ( *! ) = vector_times_vector ~add:Group.add ~mul:Group.mul
+      let ( +! ) = L.map2_exn ~f:Group.add                             (* Add two group vectors *)
+      let ( *.!) g = L.map ~f:(Group.mul g)                            (* Mul group element by Zp vector *)
+      let ( *!.) l n = L.map l ~f:(fun g -> Group.mul g n)             (* Mul group vector by Zp element *)
+      let ( *..) = Group.mul                                           (* Mul group element by Zp element *)
+      let ( *! ) = vector_times_vector ~add:Group.add ~mul:Group.mul   (* Mul group vector by Zp vector *)
+      let one = Group.one
+      let zero = Group.zero
       let head = L.hd_exn
       let tail = L.tl_exn
-        
+      let single v = if L.length v = 1 then head v else assert false
+(*
       let sE x w =
-        let u = head w in
-        (u *. x) +! (tail w)
+        let _u0 = head w in
+        let u1 = head (tail w) in
+        let w = tail (tail w) in
+        [u1] +! [w *! x]
 
       let rE y w =
-        (tail w) *! y
+        let u0 = head w in
+        let u1 = head (tail w) in
+        let w = tail (tail w) in
+        ((u0 *. y) +! w) @ [ u1 ]          
+        
+      let kE y alpha =
+        (mk_list zero (L.length y)) @ [ alpha ]
 
-      let kE _y alpha =
-        alpha
+      let sD _x _y c =
+        c
+        |> single
 
-      let sD _x y c =
-        c *! y
+      let rD x _y d =
+        let d' = head (L.rev d) in
+        let d = L.rev (tail (L.rev d)) in
+        [ d *! x ] +! [ d' ]
+        |> single
+*)               
 
-      let rD _x _y d =
-        d
-                   
+      let sE x w =
+        [ w *! x ]
+
+      let rE y w =
+        w
+        
+      let kE y alpha =
+        alpha *.! y
+
+      let sD x y c =
+        let xy_inv  = zp_inverse (vector_times_vector x y ~add:bn_add_mod ~mul:bn_mul_mod) in
+        c *!. xy_inv
+        |> single
+
+      let rD x y d =
+        let xy_inv  = zp_inverse (vector_times_vector x y ~add:bn_add_mod ~mul:bn_mul_mod) in
+        (d *! x) *.. xy_inv
+    
     end
     in
 
@@ -347,8 +380,8 @@ let test_abe =
         let add = L.map2_exn ~f:R.g1_add
         let neg = L.map ~f:R.g1_neg
         let mul t a = L.map t ~f:(fun g -> R.g1_mul g a)
-        let one = mk_list (R.g1_gen ()) k
-        let zero = mk_list (R.g1_infty ()) k
+        let one = mk_list (R.g1_gen ()) (k+1)
+        let zero = mk_list (R.g1_infty ()) (k+1)
     end)
     in
 
@@ -357,8 +390,8 @@ let test_abe =
         let add = L.map2_exn ~f:R.g2_add
         let neg = L.map ~f:R.g2_neg
         let mul t a = L.map t ~f:(fun g -> R.g2_mul g a)
-        let one = mk_list (R.g2_gen ()) k
-        let zero = mk_list (R.g2_infty ()) k
+        let one = mk_list (R.g2_gen ()) (k+1)
+        let zero = mk_list (R.g2_infty ()) (k+1)
     end)
     in
 
@@ -387,7 +420,7 @@ let test_abe =
       let (pp, mu_msk) = mpk in
       let h_list = sampH pp in
       let k0 = L.hd_exn h_list in
-      let k1 = L.map2_exn (G2_PE.kE y msk) (G2_PE.rE y (L.tl_exn h_list)) ~f:R.g2_add in
+      let k1 = L.map2_exn (G2_PE.kE y msk) (G2_PE.rE y (L.tl_exn h_list)) ~f:(L.map2_exn ~f:R.g2_add) in
       (k0, k1), y
     in
 
@@ -398,21 +431,23 @@ let test_abe =
       R.gt_mul c' (R.gt_inv e_g0_msk)        
     in
 
-    let mpk, msk = setup 4 in
+    let mpk, msk = setup 3 in
     let x = [ bn_read_str_mod "5"; bn_read_str_mod "4"; bn_read_str_mod "-3" ] in
     let m = R.gt_rand () in
 
     let ct_x = enc mpk x m in
 
+(*
     let y = [ bn_read_str_mod "2"; bn_read_str_mod "5"; bn_read_str_mod "10" ] in
     let sk_y = keyGen mpk msk y in
     let m' = dec mpk sk_y ct_x in
+*)
 
     let y' = [ bn_read_str_mod "2"; bn_read_str_mod "5"; bn_read_str_mod "11" ] in
     let sk_y' = keyGen mpk msk y' in
     let m'' = dec mpk sk_y' ct_x in
 
-    if R.gt_equal m m' && not (R.gt_equal m m'') then F.printf "ABE test succedded!\n"
+    if (*R.gt_equal m m' && not *) (R.gt_equal m m'') then F.printf "ABE test succedded!\n"
     else assert false
 
 let _ =
