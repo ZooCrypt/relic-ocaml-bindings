@@ -5,6 +5,15 @@ module R = Relic
 module F = Format
 module L = List
 
+module type Group = sig
+  type t
+  val add  : t -> t -> t
+  val neg  : t -> t
+  val mul  : t -> R.bn -> t
+  val one  : t
+  val zero : t
+end
+
 let test_functions =
   "test_functions" >:: fun () ->
    assert_equal (R.core_init ()) R.sts_ok;
@@ -64,6 +73,8 @@ let test_functions =
    F.printf "g = g': %b\n" (R.g1_equal g g');
    F.printf "g : %d %S\n" (String.length g_str) g_str;
    F.printf "g': %d %S\n" (String.length (R.g1_write_bin g')) (R.g1_write_bin g');
+   let g'' = R.g1_add g' g' in
+   F.printf "g'^2: %d %S\n" (String.length (R.g1_write_bin g'')) (R.g1_write_bin g'');
    F.printf "param_level: %d\n" (R.pc_param_level ());
    let gt = R.gt_gen () in
    let gt_0 = R.gt_zero () in
@@ -303,32 +314,52 @@ let test_abe =
       prod_Br :: prod_WBr
     in
 
-    (* Predicate Encoding *)
+    let module Predicate_Encoding(Group : Group) = struct
+        
+      type t = Group.t list
+      let ( +! ) = L.map2_exn ~f:Group.add
+      let ( *. ) t = L.map ~f:(Group.mul t)
+      let ( *! ) = vector_times_vector ~add:Group.add ~mul:Group.mul
+      let head = L.hd_exn
+      let tail = L.tl_exn
+        
+      let sE x w =
+        let u = head w in
+        (u *. x) +! (tail w)
 
-    let sE x w =
-      let u = L.hd_exn w in
-      L.map2_exn ~f:(L.map2_exn ~f:R.g1_add)
-        (L.map x ~f:(fun xi -> L.map u ~f:(fun g -> R.g1_mul g xi)))
-        (L.tl_exn w)
+      let rE y w =
+        (tail w) *! y
+
+      let kE _y alpha =
+        alpha
+
+      let sD _x y c =
+        c *! y
+
+      let rD _x _y d =
+        d
+                   
+    end
     in
 
-    let rE y w =
-      vector_times_vector
-        ~add:(L.map2_exn ~f:R.g2_add)
-        ~mul:(fun l a -> L.map l ~f:(fun g -> R.g2_mul g a))
-        (L.tl_exn w) y
+    let module G1_PE = Predicate_Encoding(struct
+        type t = R.g1 list
+        let add = L.map2_exn ~f:R.g1_add
+        let neg = L.map ~f:R.g1_neg
+        let mul t a = L.map t ~f:(fun g -> R.g1_mul g a)
+        let one = mk_list (R.g1_gen ()) k
+        let zero = mk_list (R.g1_infty ()) k
+    end)
     in
 
-    let kE _y alpha =
-      alpha
-    in
-
-    let sD _x y c =
-      vector_times_vector ~add:(L.map2_exn ~f:R.g1_add) ~mul:(fun c y -> L.map c ~f:(fun g -> R.g1_mul g y)) c y
-    in
-
-    let rD _x _y d =
-      d
+    let module G2_PE = Predicate_Encoding(struct
+        type t = R.g2 list
+        let add = L.map2_exn ~f:R.g2_add
+        let neg = L.map ~f:R.g2_neg
+        let mul t a = L.map t ~f:(fun g -> R.g2_mul g a)
+        let one = mk_list (R.g2_gen ()) k
+        let zero = mk_list (R.g2_infty ()) k
+    end)
     in
 
     (* ABE *)
@@ -347,7 +378,7 @@ let test_abe =
       let g_list = sampG ~randomness:(Some s_list) pp in
       let g'T = sampGT ~randomness:(Some s_list) mu_msk in
       let c0 = L.hd_exn g_list in
-      let c1 = sE x (L.tl_exn g_list) in
+      let c1 = G1_PE.sE x (L.tl_exn g_list) in
       let c' = R.gt_mul g'T m in
       (c0, c1, c'), x
     in
@@ -356,14 +387,14 @@ let test_abe =
       let (pp, mu_msk) = mpk in
       let h_list = sampH pp in
       let k0 = L.hd_exn h_list in
-      let k1 = L.map2_exn (kE y msk) (rE y (L.tl_exn h_list)) ~f:R.g2_add in
+      let k1 = L.map2_exn (G2_PE.kE y msk) (G2_PE.rE y (L.tl_exn h_list)) ~f:R.g2_add in
       (k0, k1), y
     in
 
     let dec mpk sk_y ct_x =
       let (c0, c1, c'), x = ct_x in
       let (k0, k1), y = sk_y in
-      let e_g0_msk = R.gt_mul (dual_system_pairing c0 (rD x y k1)) (R.gt_inv (dual_system_pairing (sD x y c1) k0)) in
+      let e_g0_msk = R.gt_mul (dual_system_pairing c0 (G2_PE.rD x y k1)) (R.gt_inv (dual_system_pairing (G1_PE.sD x y c1) k0)) in
       R.gt_mul c' (R.gt_inv e_g0_msk)        
     in
 
