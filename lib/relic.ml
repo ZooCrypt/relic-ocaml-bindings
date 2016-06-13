@@ -531,19 +531,6 @@ let gt_size_bin ?(compress=false) gt =
   Internal.gt_size_bin gt flag
 
 let gt_read_bin str =
-  let _checking =
-    match String.length str with
-    | a when a = (8 * fp_bytes) ->
-       if str.[0] != '\002' && str.[0] != '\003' then
-         failwith "Invalid string: first byte expected to be either \002 or \003"
-       else ()
-    | a when a = (12 * fp_bytes) ->
-       if str.[0] != '\004' then
-         failwith "Invalid string: first byte expected to be \004"
-       else ()
-    | a -> failwith ("Invalid string: " ^ (string_of_int a) ^ " is not one of the accepted lengths:" ^
-       (string_of_int (8 * fp_bytes)) ^ ", " ^ (string_of_int (12 * fp_bytes)))
-  in
   let gt_p = allocate_gt () in
   let length = String.length str in
   let buf = Ctypes.allocate_n char ~count:length in
