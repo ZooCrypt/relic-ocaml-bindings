@@ -30,18 +30,13 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   module Typedef_ptr (TN : sig val type_name : string end) : sig
     type t
     val t : t Ctypes.typ
-    val allocate : ?finalise:(t -> unit) -> unit -> t ptr
+    val allocate : unit -> t ptr
     val to_string : t -> string
   end = struct
     type t = unit ptr
     let t = typedef (ptr void) TN.type_name
 
-    let allocate ?finalise () =
-      let finalise = match finalise with
-        | Some f -> Some (fun p -> f !@p)
-        | None   -> None
-      in
-      allocate ?finalise t null
+    let allocate () = allocate t null
     let to_string p =
       Nativeint.to_string @@ raw_address_of_ptr p
   end
@@ -127,7 +122,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let g2 = G2.t
     
   let g2_new  = foreign "w_g2_new" (ptr g2 @-> returning void)
-  let g2_free = foreign "g2_free" (g2 @-> returning void)
+  let g2_free = foreign "g2_free"  (g2 @-> returning void)
     
   let g2_get_gen   = foreign "g2_get_gen"   (g2 @-> returning void)    
   let g2_get_ord   = foreign "g2_get_ord"   (bn @-> returning void)
@@ -153,7 +148,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let gt = Gt.t
 
   let gt_new  = foreign "w_gt_new" (ptr gt @-> returning void)
-  let gt_free = foreign "w_gt_free" (gt @-> returning void)
+  let gt_free = foreign "w_gt_free"  (gt @-> returning void)
 
   let gt_get_gen   = foreign "w_gt_get_gen"   (gt @-> returning void)
   let gt_get_ord   = foreign "gt_get_ord"     (bn @-> returning void)
@@ -171,7 +166,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
 
 (* **** Bilinear map *)
 
-  let pc_map = foreign "pc_map"  (gt @-> g1 @-> g2 @-> returning void)
+  let pc_map = foreign "w_pc_map"  (gt @-> g1 @-> g2 @-> returning void)
 
 end
   

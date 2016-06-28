@@ -117,22 +117,14 @@ module Internal = struct
   let pc_map = R.pc_map
 end
 
-(* ** Finalizers *)
-
-let deref_bn bn = Gc.finalise Internal.bn_free bn
-
-let deref_g1 g1 = Gc.finalise Internal.g1_free g1
-
-let deref_g2 g2 =  Gc.finalise Internal.g2_free g2
-
-let deref_gt gt = Gc.finalise Internal.gt_free gt
-
 (* ** Big numbers *)
 
 let allocate_bn () =
-  let bn_p = R.Bn.allocate ~finalise:deref_bn () in (* allocate bn_t which is a pointer to a structure *)
-  Internal.bn_new bn_p;                   (* allocate bn_st, the actual struct with the values *)
-  !@bn_p
+  let bn_p = R.Bn.allocate () in (* allocate bn_t which is a pointer to a structure *)
+  Internal.bn_new bn_p;          (* allocate bn_st, the actual struct with the values *)
+  let bn = !@bn_p in
+  Gc.finalise Internal.bn_free bn;
+  bn
 
 let bn_from_uint64 n =
   let bn = allocate_bn () in
@@ -175,9 +167,11 @@ let bn_sqrt n =
   bn
 
 let bn_mod a m =
-  let bn = allocate_bn () in 
-  Internal.bn_mod bn a m;
-  bn
+  if Internal.bn_is_zero m then failwith "Division by zero"
+  else
+    let bn = allocate_bn () in 
+    Internal.bn_mod bn a m;
+    bn
 
 let bn_gcd a b =
   let bn = allocate_bn () in
@@ -270,9 +264,11 @@ let pc_map_type () =
 (* *** G1 *)
 
 let allocate_g1 () =
-  let g1_p = R.G1.allocate ~finalise:deref_g1 () in
+  let g1_p = R.G1.allocate () in
   Internal.g1_new g1_p;
-  !@ g1_p  
+  let g1 = !@g1_p in
+  Gc.finalise Internal.g1_free g1;
+  g1
 
 let g1_gen () =
   let g1 = allocate_g1 () in
@@ -380,9 +376,11 @@ let g1_mul_gen k =
 (* *** G2 *)
 
 let allocate_g2 () =
-  let g2_p = R.G2.allocate ~finalise:deref_g2 () in
+  let g2_p = R.G2.allocate () in
   Internal.g2_new g2_p;
-  !@ g2_p  
+  let g2 = !@g2_p in
+  Gc.finalise Internal.g2_free g2;
+  g2
 
 let g2_gen () =
   let g2 = allocate_g2 () in
@@ -473,14 +471,16 @@ let g2_mul_gen k =
 (* *** Gt *)
 
 let allocate_gt () =
-  let gt_p = R.Gt.allocate ~finalise:deref_gt () in
+  let gt_p = R.Gt.allocate () in
   Internal.gt_new gt_p;
-  gt_p
+  let gt = !@gt_p in
+  Gc.finalise Internal.gt_free gt;
+  gt
 
 let gt_gen () =
-  let gt_p = allocate_gt () in
-  Internal.gt_get_gen !@gt_p;
-  !@gt_p
+  let gt = allocate_gt () in
+  Internal.gt_get_gen gt;
+  gt
 
 let gt_ord () =
   let bn = allocate_bn () in
@@ -491,30 +491,30 @@ let gt_is_unity gt =
   Internal.gt_is_unity gt
 
 let gt_zero () =
-  let gt_p = allocate_gt () in
-  Internal.gt_zero !@gt_p;
-  !@gt_p
+  let gt = allocate_gt () in
+  Internal.gt_zero gt;
+  gt
 
 let gt_unity () =
-  let gt_p = allocate_gt () in
-  Internal.gt_set_unity !@gt_p;
-  !@gt_p
+  let gt = allocate_gt () in
+  Internal.gt_set_unity gt;
+  gt
 
 let gt_equal gt gt' =
   if (Internal.gt_cmp gt gt') = cmp_eq then true
   else false
 
 let gt_rand () =
-  let gt_p = allocate_gt () in
-  Internal.gt_rand !@gt_p;
-  !@gt_p
+  let gt = allocate_gt () in
+  Internal.gt_rand gt;
+  gt
 
 let gt_size_bin ?(compress=false) gt =
   let flag = compress_flag compress in
   Internal.gt_size_bin gt flag
 
 let gt_read_bin str =
-  let gt_p = allocate_gt () in
+  let gt = allocate_gt () in
   let length = String.length str in
   let buf = Ctypes.allocate_n char ~count:length in
   for i = 0 to length-1 do
@@ -522,8 +522,8 @@ let gt_read_bin str =
     ()
   done;
   let buf = from_voidp uint8_t (to_voidp buf) in
-  Internal.gt_read_bin !@gt_p buf length;
-  !@gt_p
+  Internal.gt_read_bin gt buf length;
+  gt
 
 let gt_write_bin ?(compress=false) gt =
   let flag = compress_flag compress in
@@ -536,22 +536,22 @@ let gt_write_bin ?(compress=false) gt =
 
 let gt_inv gt =
   let res = allocate_gt () in
-  Internal.gt_inv !@res gt;
-  !@res
+  Internal.gt_inv res gt;
+  res
 
 let gt_mul gt gt' =
   let res = allocate_gt () in
-  Internal.gt_mul !@res gt gt';
-  !@res
+  Internal.gt_mul res gt gt';
+  res
 
 let gt_exp gt k =
   let res = allocate_gt () in
-  Internal.gt_exp !@res gt k;
-  !@res
+  Internal.gt_exp res gt k;
+  res
 
 (* *** Bilinear map *)
 
 let e_pairing g1 g2 =
   let gt = allocate_gt () in
-  Internal.pc_map !@gt g1 g2;
-  !@gt
+  Internal.pc_map gt g1 g2;
+  gt

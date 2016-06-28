@@ -35,3 +35,5 @@ void w_gt_inv(my_gt_t, my_gt_t);
 void w_gt_mul(my_gt_t, my_gt_t, my_gt_t);
 
 void w_gt_exp(my_gt_t, my_gt_t, bn_t);
+
+void w_pc_map(my_gt_t, g1_t, g2_t);

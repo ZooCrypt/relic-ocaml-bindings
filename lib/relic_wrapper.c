@@ -80,3 +80,7 @@ void w_gt_mul(my_gt_t p1, my_gt_t p2, my_gt_t p3){
 void w_gt_exp(my_gt_t p1, my_gt_t p2, bn_t n){
   gt_exp((*p1), (*p2), n);
 }
+
+void w_pc_map(my_gt_t gt, g1_t g1, g2_t g2){
+  pc_map((*gt), g1, g2);
+}
