@@ -43,8 +43,7 @@ module Internal = struct
   let bn_gcd_ext = R.bn_gcd_ext
   let bn_lcm     = R.bn_lcm
   let bn_zero    = R.bn_zero
-
-  let bn_mxp_monty = R.bn_mxp_monty
+  let bn_mxp_basic = R.bn_mxp_basic
 
   let bn_is_zero  = R.bn_is_zero
   let bn_cmp      = R.bn_cmp
@@ -195,7 +194,7 @@ let bn_lcm a b =
 
 let bn_pow_mod a b m =
   let bn = allocate_bn () in
-  Internal.bn_mxp_monty bn a b m;
+  Internal.bn_mxp_basic bn a b m;
   bn
 
 let bn_zero () =

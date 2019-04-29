@@ -39,7 +39,10 @@ module Internal : sig
   val bn_mod     : bn -> bn -> bn -> unit
   val bn_gcd     : bn -> bn -> bn -> unit
   val bn_gcd_ext : bn -> bn -> bn -> bn -> bn -> unit
+  val bn_lcm     : bn -> bn -> bn -> unit
   val bn_zero    : bn -> unit
+
+  val bn_mxp_basic : bn -> bn -> bn -> bn -> unit
 
   val bn_is_zero  : bn -> bool
   val bn_cmp      : bn -> bn -> int

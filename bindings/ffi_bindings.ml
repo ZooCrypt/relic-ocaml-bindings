@@ -71,7 +71,8 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_lcm     = foreign "bn_lcm"      (bn @-> bn @-> bn @-> returning void)
   let bn_zero    = foreign "bn_zero"     (bn @-> returning void)
 
-  let bn_mxp_monty = foreign "bn_mxp_monty" (bn @-> bn @-> bn @-> bn @-> returning void)
+  let bn_mxp_basic = foreign "bn_mxp_basic"  (bn @-> bn @-> bn @-> bn @-> returning void)
+
 
   let bn_is_zero  = foreign "bn_is_zero"  (bn @-> returning bool)
   let bn_cmp      = foreign "bn_cmp"      (bn @-> bn @-> returning int)
