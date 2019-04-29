@@ -24,7 +24,7 @@ end
 
 module Bindings (F : Cstubs.FOREIGN) = struct
   open F
-  
+
 (* *** Typedefs *)
 
   module Typedef_ptr (TN : sig val type_name : string end) : sig
@@ -49,9 +49,9 @@ module Bindings (F : Cstubs.FOREIGN) = struct
 (* *** Big numbers *)
 
   module Bn = Typedef_ptr(struct let type_name = "bn_t" end)
-    
+
   let bn = Bn.t
-    
+
   let bn_new  = foreign "w_bn_new" (ptr bn @-> returning void)
   let bn_free = foreign "bn_free"  (bn @-> returning void)
 
@@ -68,7 +68,10 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_mod     = foreign "bn_mod"      (bn @-> bn @-> bn @-> returning void)
   let bn_gcd     = foreign "bn_gcd"      (bn @-> bn @-> bn @-> returning void)
   let bn_gcd_ext = foreign "bn_gcd_ext"  (bn @-> bn @-> bn @-> bn @-> bn @-> returning void)
+  let bn_lcm     = foreign "bn_lcm"      (bn @-> bn @-> bn @-> returning void)
   let bn_zero    = foreign "bn_zero"     (bn @-> returning void)
+
+  let bn_mxp_monty = foreign "bn_mxp_monty" (bn @-> bn @-> bn @-> bn @-> returning void)
 
   let bn_is_zero  = foreign "bn_is_zero"  (bn @-> returning bool)
   let bn_cmp      = foreign "bn_cmp"      (bn @-> bn @-> returning int)
@@ -82,7 +85,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_ham       = foreign "bn_ham"       (bn @-> returning int)
   let bn_write_str = foreign "bn_write_str" (ptr char @-> int @-> bn @-> int @-> returning void)
   let bn_read_str  = foreign "bn_read_str"  (bn @-> ptr char @-> int @-> int @-> returning void)
-  
+
 (* *** Groups *)
 
   let pc_param_level  = foreign "pc_param_level"  (void @-> returning int)
@@ -90,14 +93,14 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let pc_map_is_type3 = foreign "pc_map_is_type3" (void @-> returning bool)
 
 (* **** G1 *)
-    
+
   module G1 = Typedef_ptr(struct let type_name = "g1_t" end)
-    
+
   let g1 = G1.t
-    
+
   let g1_new  = foreign "w_g1_new" (ptr g1 @-> returning void)
   let g1_free = foreign "g1_free" (g1 @-> returning void)
-    
+
   let g1_get_gen   = foreign "g1_get_gen"   (g1 @-> returning void)
   let g1_get_ord   = foreign "g1_get_ord"   (bn @-> returning void)
   let g1_is_infty  = foreign "g1_is_infty"  (g1 @-> returning bool)
@@ -116,15 +119,15 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let g1_mul_gen   = foreign "g1_mul_gen"   (g1 @-> bn @-> returning void)
 
 (* **** G2 *)
-    
+
   module G2 = Typedef_ptr(struct let type_name = "g2_t" end)
-    
+
   let g2 = G2.t
-    
+
   let g2_new  = foreign "w_g2_new" (ptr g2 @-> returning void)
   let g2_free = foreign "g2_free"  (g2 @-> returning void)
-    
-  let g2_get_gen   = foreign "g2_get_gen"   (g2 @-> returning void)    
+
+  let g2_get_gen   = foreign "g2_get_gen"   (g2 @-> returning void)
   let g2_get_ord   = foreign "g2_get_ord"   (bn @-> returning void)
   let g2_is_infty  = foreign "g2_is_infty"  (g2 @-> returning bool)
   let g2_set_infty = foreign "g2_set_infty" (g2 @-> returning void)
@@ -142,9 +145,9 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let g2_mul_gen   = foreign "g2_mul_gen"   (g2 @-> bn @-> returning void)
 
 (* **** GT *)
- 
+
   module Gt = Typedef_ptr(struct let type_name = "my_gt_t" end)
-    
+
   let gt = Gt.t
 
   let gt_new  = foreign "w_gt_new" (ptr gt @-> returning void)
@@ -169,4 +172,3 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let pc_map = foreign "w_pc_map"  (gt @-> g1 @-> g2 @-> returning void)
 
 end
-  

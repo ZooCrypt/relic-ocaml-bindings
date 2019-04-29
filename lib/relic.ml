@@ -41,7 +41,10 @@ module Internal = struct
   let bn_mod     = R.bn_mod
   let bn_gcd     = R.bn_gcd
   let bn_gcd_ext = R.bn_gcd_ext
+  let bn_lcm     = R.bn_lcm
   let bn_zero    = R.bn_zero
+
+  let bn_mxp_monty = R.bn_mxp_monty
 
   let bn_is_zero  = R.bn_is_zero
   let bn_cmp      = R.bn_cmp
@@ -50,7 +53,7 @@ module Internal = struct
   let bn_rand      = R.bn_rand
   let bn_rand_mod  = R.bn_rand_mod
   let bn_gen_prime = R.bn_gen_prime
-    
+
   let bn_size_str  = R.bn_size_str
   let bn_ham       = R.bn_ham
   let bn_write_str = R.bn_write_str
@@ -113,7 +116,7 @@ module Internal = struct
   let gt_inv       = R.gt_inv
   let gt_mul       = R.gt_mul
   let gt_exp       = R.gt_exp
-  
+
   let pc_map = R.pc_map
 end
 
@@ -169,7 +172,7 @@ let bn_sqrt n =
 let bn_mod a m =
   if Internal.bn_is_zero m then failwith "Division by zero"
   else
-    let bn = allocate_bn () in 
+    let bn = allocate_bn () in
     Internal.bn_mod bn a m;
     bn
 
@@ -184,6 +187,16 @@ let bn_gcd_ext a b =
   let v = allocate_bn () in
   Internal.bn_gcd_ext d u v a b;
   (d, u, v)
+
+let bn_lcm a b =
+  let bn = allocate_bn () in
+  Internal.bn_lcm bn a b;
+  bn
+
+let bn_pow_mod a b m =
+  let bn = allocate_bn () in
+  Internal.bn_mxp_monty bn a b m;
+  bn
 
 let bn_zero () =
   let bn = allocate_bn () in
@@ -212,7 +225,7 @@ let bn_is_prime n =
   else Internal.bn_is_prime n
 
 let bn_rand ?(positive=true) ~bits =
-  let bn = allocate_bn () in  
+  let bn = allocate_bn () in
   let sign = if positive then bn_positive else bn_negative in
   Internal.bn_rand bn sign bits;
   bn
@@ -279,7 +292,7 @@ let g1_ord () =
   let bn = allocate_bn () in
   Internal.g1_get_ord bn;
   bn
-  
+
 let g1_is_infty g1 =
   Internal.g1_is_infty g1
 
@@ -307,7 +320,7 @@ let g1_size_bin ?(compress=false) g1 =
 let g1_read_bin str =
   let _checking =
     match String.length str with
-    | 1 -> 
+    | 1 ->
        if str.[0] != '\000' then
          failwith "Invalid string: first byte expected to be \000"
        else ()
@@ -391,7 +404,7 @@ let g2_ord () =
   let bn = allocate_bn () in
   Internal.g2_get_ord bn;
   bn
-  
+
 let g2_is_infty g2 =
   Internal.g2_is_infty g2
 

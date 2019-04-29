@@ -126,8 +126,10 @@ val bn_neg     : bn -> bn
 val bn_abs     : bn -> bn
 val bn_sqrt    : bn -> bn
 val bn_mod     : bn -> bn -> bn
-val bn_gcd     : bn -> bn -> bn 
+val bn_gcd     : bn -> bn -> bn
 val bn_gcd_ext : bn -> bn -> bn * bn * bn
+val bn_lcm     : bn -> bn -> bn
+val bn_pow_mod : bn -> bn -> bn -> bn
 val bn_zero    : unit -> bn
 val bn_one     : unit -> bn
 
@@ -197,4 +199,3 @@ val gt_mul       : gt -> gt -> gt
 val gt_exp       : gt -> bn -> gt
 
 val e_pairing    : g1 -> g2 -> gt
-
