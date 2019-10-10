@@ -31,5 +31,5 @@ make
 
 Note: after installing relic, you can check the default curves with our 'check_relic.c' file:
 ```
-gcc -I/usr/local/include/relic check_relic.c -lrelic && ./check_relic.out
+gcc -I/usr/local/include/relic check_relic.c -lrelic -o check_relic.out && ./check_relic.out
 ```
