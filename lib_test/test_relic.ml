@@ -43,7 +43,7 @@ let test_functions =
    F.printf "G1 order size: %d bits\n" (R.bn_size_str (R.g1_ord ()) 2);
    F.printf "G2 order: %s\n" (R.bn_write_str (R.g2_ord ()) 2);
    F.printf "Gt order: %s\n" (R.bn_write_str (R.gt_ord ()) 10);
-   
+
    let g = R.g1_gen () in
    let u = R.g1_infty () in
    F.printf "%b %b\n" (R.g1_is_infty g) (R.g1_is_infty u);
@@ -100,26 +100,26 @@ let test_pairing =
   "test_pairing" >:: fun () ->
     assert_equal (R.core_init ()) R.sts_ok;
     assert_equal (R.pc_param_set_any ()) R.sts_ok;
-    
+
   (* Get generators in G1 and G2 *)
     let g1 = R.g1_gen () in
     let g2 = R.g2_gen () in
-    
+
   (* Sample random exponents *)
     let a = R.bn_rand 256 in
     let b = R.bn_rand 256 in
-    
+
     let ab = R.bn_mul a b in
-    
+
     let g1_a = R.g1_mul g1 a in
     let g2_b = R.g2_mul g2 b in
-    
+
   (* Compute pairings *)
     let z1 = R.e_pairing g1_a g2_b in
-    let z2 = R.gt_exp (R.e_pairing g1 g2) ab in 
-    
+    let z2 = R.gt_exp (R.e_pairing g1 g2) ab in
+
   (* Check *)
-    if R.gt_equal z1 z2 then F.printf "Pairing test succedded!\n"
+    if R.gt_equal z1 z2 then F.printf "Pairing test succeedded!\n"
     else assert false
 
 
@@ -127,11 +127,11 @@ let test_sps =
   "test_sps" >:: fun () ->
     assert_equal (R.core_init ()) R.sts_ok;
     assert_equal (R.pc_param_set_any ()) R.sts_ok;
-    
+
     (* Get generators in G1 and G2 *)
     let g1 = R.g1_gen () in
     let g2 = R.g2_gen () in
-    
+
 
     (* Key generation *)
     let keyGen () =
@@ -146,7 +146,7 @@ let test_sps =
     (* Sign *)
     let sign (v,w) m =
       let r = R.bn_rand 256 in
-      
+
       let s1 = R.g1_mul g1 r in
       let s2 = R.g2_mul g2 r in
       let s3 = R.g2_add (R.g2_add (R.g2_mul m v) (R.g2_mul g2 (R.bn_mul r r))) (R.g2_mul g2 w) in
@@ -170,16 +170,16 @@ let test_sps =
     let (s1,s2,s3) = sign sk msg in
 
     let msg2 = R.g2_rand () in
-    
+
     (* Check *)
     if (verif pk msg (s1,s2,s3)) && (not (verif pk msg2 (s1,s2,s3))) then
-      F.printf "Signature test succedded!\n"
+      F.printf "Signature test succeedded!\n"
     else assert false
 
 let test_abe =
 
   (* ABE described in Improved Dual System ABE in Prime-Order Groups via Predicate Encodings *)
-  
+
   "test_abe" >:: fun () ->
     assert_equal (R.core_init ()) R.sts_ok;
     assert_equal (R.pc_param_set_any ()) R.sts_ok;
@@ -195,51 +195,51 @@ let test_abe =
     in
 
     let sample_list ~f k =
-      let rec aux list k = 
+      let rec aux list k =
         if k = 0 then list
         else aux (list @ [f ()]) (k-1)
       in
       aux [] k
     in
-    
+
     let sample_matrix ~f m n =
-      let rec aux matrix m = 
+      let rec aux matrix m =
         if m = 0 then matrix
         else aux (matrix @ [sample_list ~f n]) (m-1)
       in
       aux [] m
     in
-    
+
     let transpose_matrix list =
       L.fold_left list
         ~init:(L.map (L.hd_exn list) ~f:(fun _ -> []))
         ~f:(fun l_output l -> L.map2_exn l_output l ~f:(fun li e -> li @ [e]))
     in
-    
+
     let vector_times_vector ~add ~mul v1 v2 =
       let prods = L.map2_exn v1 v2 ~f:mul in
       L.fold_left (L.tl_exn prods)
         ~init:(L.hd_exn prods)
         ~f:add
     in
-    
+
     let matrix_times_vector ~add ~mul m v = L.map m ~f:(fun row -> vector_times_vector ~add ~mul row v) in
 
     let matrix_times_matrix ~add ~mul m1 m2 =
       L.map (transpose_matrix m2) ~f:(fun col -> matrix_times_vector ~add ~mul m1 col)
     in
-    
+
     let matrix_map ~f m = L.map m ~f:(L.map ~f) in
 
     (* Public parameters *)
-    
+
     let g1 = R.g1_gen () in
     let g2 = R.g2_gen () in
     let p = R.g1_ord () in
     assert ((R.bn_equal p (R.g2_ord ())) && (R.bn_equal p (R.gt_ord ())));
-      
+
     let samp_zp () = R.bn_rand_mod p in
-    let zp_inverse a = 
+    let zp_inverse a =
       let (d,u,_v) = R.bn_gcd_ext a p in
       if R.bn_equal d (R.bn_one ()) then R.bn_mod u p
       else failwith ("Inverse of " ^ (R.bn_write_str a 10)  ^ " mod " ^ (R.bn_write_str p 10) ^ " does not exist")
@@ -315,7 +315,7 @@ let test_abe =
     in
 
     let module Predicate_Encoding(Group : Group) = struct
-        
+
       type t = Group.t list
       let ( +! ) = L.map2_exn ~f:Group.add                             (* Add two group vectors *)
       let ( *.!) g = L.map ~f:(Group.mul g)                            (* Mul group element by Zp vector *)
@@ -338,8 +338,8 @@ let test_abe =
         let u0 = head w in
         let u1 = head (tail w) in
         let w = tail (tail w) in
-        ((u0 *. y) +! w) @ [ u1 ]          
-        
+        ((u0 *. y) +! w) @ [ u1 ]
+
       let kE y alpha =
         (mk_list zero (L.length y)) @ [ alpha ]
 
@@ -352,14 +352,14 @@ let test_abe =
         let d = L.rev (tail (L.rev d)) in
         [ d *! x ] +! [ d' ]
         |> single
-*)               
+*)
 
       let sE x w =
         [ w *! x ]
 
       let rE y w =
         w
-        
+
       let kE y alpha =
         alpha *.! y
 
@@ -371,7 +371,7 @@ let test_abe =
       let rD x y d =
         let xy_inv  = zp_inverse (vector_times_vector x y ~add:bn_add_mod ~mul:bn_mul_mod) in
         (d *! x) *.. xy_inv
-    
+
     end
     in
 
@@ -428,7 +428,7 @@ let test_abe =
       let (c0, c1, c'), x = ct_x in
       let (k0, k1), y = sk_y in
       let e_g0_msk = R.gt_mul (dual_system_pairing c0 (G2_PE.rD x y k1)) (R.gt_inv (dual_system_pairing (G1_PE.sD x y c1) k0)) in
-      R.gt_mul c' (R.gt_inv e_g0_msk)        
+      R.gt_mul c' (R.gt_inv e_g0_msk)
     in
 
     let mpk, msk = setup 3 in
@@ -447,17 +447,48 @@ let test_abe =
     let sk_y' = keyGen mpk msk y' in
     let m'' = dec mpk sk_y' ct_x in
 
-    if (*R.gt_equal m m' && not *) (R.gt_equal m m'') then F.printf "ABE test succedded!\n"
+    if (*R.gt_equal m m' && not *) (R.gt_equal m m'') then F.printf "ABE test succeedded!\n"
     else assert false
 
+
+let test_ec () =
+
+    assert_equal (R.core_init ()) R.sts_ok;
+    assert_equal (R.ec_param_set_any ()) R.sts_ok;
+
+    let g = R.ec_gen () in
+    let p = R.ec_ord () in
+
+    let a = R.bn_rand_mod p in
+    let b = R.bn_rand_mod p in
+
+    let ga = R.ec_mul g a in
+    let gb = R.ec_mul g b in
+
+    let gab = R.ec_mul ga b in
+    let gba = R.ec_mul gb a in
+
+    (for i = 1 to 10000 do
+      let _ = R.ec_mul ga b in
+      ()
+    done);
+
+    (assert (R.ec_equal gab gba));
+
+    F.printf "Order: %s\n" (R.bn_write_str p ~radix:10);
+    F.printf "a: %s\nb: %s\n" (R.bn_write_str a ~radix:10) (R.bn_write_str b ~radix:10);
+    F.printf "EC test succeedded\n"
+(*
 let _ =
   let suite = "relic" >::: [
     (* test_functions; *)
     test_pairing;
     test_sps;
     test_abe;
+    test_ec;
       ]
   in
   OUnit2.run_test_tt_main @@ ounit2_of_ounit1 suite;
   Gc.full_major ()
-
+ *)
+let _ = test_ec ()

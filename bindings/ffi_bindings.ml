@@ -45,6 +45,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
 
   let core_init = foreign "core_init" (void @-> returning int)
   let pc_param_set_any = foreign "pc_param_set_any" (void @-> returning int)
+  let ec_param_set_any = foreign "ec_param_set_any" (void @-> returning int)
 
 (* *** Big numbers *)
 
@@ -87,11 +88,37 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let bn_write_str = foreign "bn_write_str" (ptr char @-> int @-> bn @-> int @-> returning void)
   let bn_read_str  = foreign "bn_read_str"  (bn @-> ptr char @-> int @-> int @-> returning void)
 
-(* *** Groups *)
+(* *** Elliptic Curves *)
 
   let pc_param_level  = foreign "pc_param_level"  (void @-> returning int)
   let pc_map_is_type1 = foreign "pc_map_is_type1" (void @-> returning bool)
   let pc_map_is_type3 = foreign "pc_map_is_type3" (void @-> returning bool)
+
+  module EC = Typedef_ptr(struct let type_name = "ec_t" end)
+
+  let ec = EC.t
+
+  let ec_new  = foreign "w_ec_new" (ptr ec @-> returning void)
+  let ec_free = foreign "ec_free"  (ec @-> returning void)
+
+  let ec_get_gen   = foreign "ec_curve_get_gen" (ec @-> returning void) (* Note the word 'curve' in *)
+  let ec_get_ord   = foreign "ec_curve_get_ord" (bn @-> returning void) (* the relic function name *)
+  let ec_is_infty  = foreign "ec_is_infty"  (ec @-> returning bool)
+  let ec_set_infty = foreign "ec_set_infty" (ec @-> returning void)
+  let ec_cmp       = foreign "ec_cmp"       (ec @-> ec @-> returning int)
+  let ec_rand      = foreign "ec_rand"      (ec @-> returning void)
+  let ec_is_valid  = foreign "ec_is_valid"  (ec @-> returning bool)
+  let ec_size_bin  = foreign "ec_size_bin"  (ec @-> int @-> returning int)
+  let ec_read_bin  = foreign "ec_read_bin"  (ec @-> ptr uint8_t @-> int @-> returning void)
+  let ec_write_bin = foreign "ec_write_bin" (ptr uint8_t @-> int @-> ec @-> int @-> returning void)
+  let ec_neg       = foreign "ec_neg"       (ec @-> ec @-> returning void)
+  let ec_add       = foreign "ec_add"       (ec @-> ec @-> ec @-> returning void)
+  let ec_sub       = foreign "ec_sub"       (ec @-> ec @-> ec @-> returning void)
+  let ec_mul       = foreign "ec_mul"       (ec @-> ec @-> bn @-> returning void)
+  let ec_norm      = foreign "ec_norm"      (ec @-> ec @-> returning void)
+  let ec_mul_gen   = foreign "ec_mul_gen"   (ec @-> bn @-> returning void)
+
+(* *** Pairing Groups *)
 
 (* **** G1 *)
 
@@ -100,7 +127,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let g1 = G1.t
 
   let g1_new  = foreign "w_g1_new" (ptr g1 @-> returning void)
-  let g1_free = foreign "g1_free" (g1 @-> returning void)
+  let g1_free = foreign "g1_free"  (g1 @-> returning void)
 
   let g1_get_gen   = foreign "g1_get_gen"   (g1 @-> returning void)
   let g1_get_ord   = foreign "g1_get_ord"   (bn @-> returning void)

@@ -18,8 +18,10 @@ let fp_bytes = RT.fp_bytes
 
 let core_init = R.core_init
 let pc_param_set_any = R.pc_param_set_any
+let ec_param_set_any = R.ec_param_set_any
 
 type bn = R.Bn.t
+type ec = R.EC.t
 type g1 = R.G1.t
 type g2 = R.G2.t
 type gt = R.Gt.t
@@ -61,6 +63,25 @@ module Internal = struct
   let pc_param_level  = R.pc_param_level
   let pc_map_is_type1 = R.pc_map_is_type1
   let pc_map_is_type3 = R.pc_map_is_type3
+
+  let ec_new       = R.ec_new
+  let ec_free      = R.ec_free
+  let ec_get_gen   = R.ec_get_gen
+  let ec_get_ord   = R.ec_get_ord
+  let ec_is_infty  = R.ec_is_infty
+  let ec_set_infty = R.ec_set_infty
+  let ec_cmp       = R.ec_cmp
+  let ec_rand      = R.ec_rand
+  let ec_is_valid  = R.ec_is_valid
+  let ec_size_bin  = R.ec_size_bin
+  let ec_read_bin  = R.ec_read_bin
+  let ec_write_bin = R.ec_write_bin
+  let ec_neg       = R.ec_neg
+  let ec_add       = R.ec_add
+  let ec_sub       = R.ec_sub
+  let ec_mul       = R.ec_mul
+  let ec_norm      = R.ec_norm
+  let ec_mul_gen   = R.ec_mul_gen
 
   let g1_new       = R.g1_new
   let g1_free      = R.g1_free
@@ -262,7 +283,7 @@ let bn_read_str str ~radix =
   Internal.bn_read_str bn buf length radix;
   bn
 
-(* ** Groups *)
+(* ** Elliptic Curves *)
 
 let compress_flag compress = if compress then 1 else 0
 
@@ -272,6 +293,119 @@ let pc_map_type () =
   if Internal.pc_map_is_type1 ()      then 1
   else if Internal.pc_map_is_type3 () then 3
   else failwith "Unknown type"
+
+
+let allocate_ec () =
+  let ec_p = R.EC.allocate () in
+  Internal.ec_new ec_p;
+  let ec = !@ec_p in
+  Gc.finalise Internal.ec_free ec;
+  ec
+
+let ec_gen () =
+  let ec = allocate_ec () in
+  Internal.ec_get_gen ec;
+  ec
+
+let ec_ord () =
+  let bn = allocate_bn () in
+  Internal.ec_get_ord bn;
+  bn
+
+let ec_is_infty ec =
+  Internal.ec_is_infty ec
+
+let ec_infty () =
+  let ec = allocate_ec () in
+  Internal.ec_set_infty ec;
+  ec
+
+let ec_equal ec ec' =
+  if (Internal.ec_cmp ec ec') = cmp_eq then true
+  else false
+
+let ec_rand () =
+  let ec = allocate_ec () in
+  Internal.ec_rand ec;
+  ec
+
+let ec_is_valid ec =
+  Internal.ec_is_valid ec
+
+let ec_size_bin ?(compress=false) ec =
+  let flag = compress_flag compress in
+  Internal.ec_size_bin ec flag
+
+let ec_read_bin str =
+  let _checking =
+    match String.length str with
+    | 1 ->
+       if str.[0] != '\000' then
+         failwith "Invalid string: first byte expected to be \000"
+       else ()
+    | a when a = (fp_bytes + 1) ->
+       if str.[0] != '\002' && str.[0] != '\003' then
+         failwith "Invalid string: first byte expected to be either \002 or \003"
+       else ()
+    | a when a = (2 * fp_bytes + 1) ->
+       if str.[0] != '\004' then
+         failwith "Invalid string: first byte expected to be \004"
+       else ()
+    | a -> failwith ("Invalid string: " ^ (string_of_int a) ^ " is not one of the accepted lengths:" ^
+       " 1, " ^ (string_of_int (fp_bytes + 1)) ^ ", " ^ (string_of_int (2*fp_bytes + 1)))
+  in
+  let ec = allocate_ec () in
+  let length = String.length str in
+  let buf = Ctypes.allocate_n char ~count:length in
+  for i = 0 to length-1 do
+    buf +@ i <-@ str.[i];
+    ()
+  done;
+  let buf = from_voidp uint8_t (to_voidp buf) in
+  Internal.ec_read_bin ec buf length;
+  ec
+
+let ec_write_bin ?(compress=false) ec =
+  let flag = compress_flag compress in
+  let n_chars = Internal.ec_size_bin ec flag in
+  let buf = Ctypes.allocate_n char ~count:n_chars in
+  let buf = from_voidp uint8_t (to_voidp buf) in
+  let _ = Internal.ec_write_bin buf n_chars ec flag in
+  let buf = from_voidp char (to_voidp buf) in
+  Ctypes.string_from_ptr buf ~length:n_chars
+
+let ec_neg ec =
+  let res = allocate_ec () in
+  Internal.ec_neg res ec;
+  res
+
+let ec_add ec ec' =
+  let res = allocate_ec () in
+  Internal.ec_add res ec ec';
+  res
+
+let ec_sub ec ec' =
+  let res = allocate_ec () in
+  Internal.ec_sub res ec ec';
+  res
+
+let ec_mul ec k =
+  let res = allocate_ec () in
+  Internal.ec_mul res ec k;
+  res
+
+let ec_norm ec =
+  let res = allocate_ec () in
+  Internal.ec_norm res ec;
+  res
+
+let ec_mul_gen k =
+  let res = allocate_ec () in
+  Internal.ec_mul_gen res k;
+  res
+
+
+(* ** Pairing Groups *)
 
 (* *** G1 *)
 

@@ -16,8 +16,10 @@ val fp_bytes : int
 
 val core_init : unit -> int
 val pc_param_set_any : unit -> int
+val ec_param_set_any : unit -> int
 
 type bn
+type ec
 type g1
 type g2
 type gt
@@ -60,6 +62,25 @@ module Internal : sig
   val pc_param_level  : unit -> int
   val pc_map_is_type1 : unit -> bool
   val pc_map_is_type3 : unit -> bool
+
+  val ec_new       : ec ptr -> unit
+  val ec_free      : ec -> unit
+  val ec_get_gen   : ec -> unit
+  val ec_get_ord   : bn -> unit
+  val ec_is_infty  : ec -> bool
+  val ec_set_infty : ec -> unit
+  val ec_cmp       : ec -> ec -> int
+  val ec_rand      : ec -> unit
+  val ec_is_valid  : ec -> bool
+  val ec_size_bin  : ec -> int -> int
+  val ec_read_bin  : ec -> Unsigned.UInt8.t ptr -> int -> unit
+  val ec_write_bin : Unsigned.UInt8.t ptr -> int -> ec -> int -> unit
+  val ec_neg       : ec -> ec -> unit
+  val ec_add       : ec -> ec -> ec -> unit
+  val ec_sub       : ec -> ec -> ec -> unit
+  val ec_mul       : ec -> ec -> bn -> unit
+  val ec_norm      : ec -> ec -> unit
+  val ec_mul_gen   : ec -> bn -> unit
 
   val g1_new       : g1 ptr -> unit
   val g1_free      : g1 -> unit
@@ -153,13 +174,30 @@ val bn_read_str  : string -> radix:int -> bn
 val pc_param_level : unit -> int
 val pc_map_type    : unit -> int
 
+val ec_gen       : unit -> ec
+val ec_ord       : unit -> bn
+val ec_is_infty  : ec   -> bool
+val ec_infty     : unit -> ec
+val ec_equal     : ec   -> ec -> bool
+val ec_rand      : unit -> ec
+val ec_is_valid  : ec   -> bool
+val ec_size_bin  : ?compress:bool -> ec -> int
+val ec_read_bin  : string -> ec
+val ec_write_bin : ?compress:bool -> ec -> string
+val ec_neg       : ec -> ec
+val ec_add       : ec -> ec -> ec
+val ec_sub       : ec -> ec -> ec
+val ec_mul       : ec -> bn -> ec
+val ec_norm      : ec -> ec
+val ec_mul_gen   : bn -> ec
+
 val g1_gen       : unit -> g1
 val g1_ord       : unit -> bn
-val g1_is_infty  : g1 -> bool
+val g1_is_infty  : g1   -> bool
 val g1_infty     : unit -> g1
-val g1_equal     : g1 -> g1 -> bool
+val g1_equal     : g1   -> g1 -> bool
 val g1_rand      : unit -> g1
-val g1_is_valid  : g1 -> bool
+val g1_is_valid  : g1   -> bool
 val g1_size_bin  : ?compress:bool -> g1 -> int
 val g1_read_bin  : string -> g1
 val g1_write_bin : ?compress:bool -> g1 -> string
@@ -172,9 +210,9 @@ val g1_mul_gen   : bn -> g1
 
 val g2_gen       : unit -> g2
 val g2_ord       : unit -> bn
-val g2_is_infty  : g2 -> bool
+val g2_is_infty  : g2   -> bool
 val g2_infty     : unit -> g2
-val g2_equal     : g2 -> g2 -> bool
+val g2_equal     : g2   -> g2 -> bool
 val g2_rand      : unit -> g2
 val g2_is_valid  : g2 -> bool
 val g2_size_bin  : ?compress:bool -> g2 -> int
@@ -189,10 +227,10 @@ val g2_mul_gen   : bn -> g2
 
 val gt_gen       : unit -> gt
 val gt_ord       : unit -> bn
-val gt_is_unity  : gt -> bool
+val gt_is_unity  : gt   -> bool
 val gt_zero      : unit -> gt
 val gt_unity     : unit -> gt
-val gt_equal     : gt -> gt -> bool
+val gt_equal     : gt   -> gt -> bool
 val gt_rand      : unit -> gt
 val gt_size_bin  : ?compress:bool -> gt -> int
 val gt_read_bin  : string -> gt

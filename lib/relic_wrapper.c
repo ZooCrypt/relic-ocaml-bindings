@@ -5,6 +5,11 @@ void w_bn_new(bn_t* p){
   bn_new(*p);
 }
 
+// wrapper around ec_new macro that changes pointer in-place
+void w_ec_new(ec_t* p){
+  ec_new(*p);
+}
+
 // wrapper around g1_new macro that changes pointer in-place
 void w_g1_new(g1_t* p){
   g1_new(*p);
@@ -19,7 +24,7 @@ void w_g2_new(g2_t* p){
 
 typedef gt_t* my_gt_t;
 
-void w_gt_new(my_gt_t* p){    
+void w_gt_new(my_gt_t* p){
   my_gt_t q = malloc(sizeof(gt_t));
   *p = q;
   gt_new((**p)); // Inner parenthesis are very important because gt_new is a macro.
