@@ -9,6 +9,29 @@ val cmp_eq : int
 val cmp_gt : int
 val cmp_ne : int
 
+val secg_p160    : int
+val secg_k160    : int
+val nist_p192    : int
+val secg_k192    : int
+val nist_p224    : int
+val secg_k224    : int
+val nist_p256    : int
+val bsi_p256     : int
+val secg_k256    : int
+val nist_p384    : int
+val nist_p521    : int
+val bn_p158      : int
+val bn_p254      : int
+val bn_p256      : int
+val b24_p477     : int
+val kss_p508     : int
+val bn_p638      : int
+val b12_p638     : int
+val ss_p1536     : int
+val curve_1174   : int
+val curve_25519  : int
+val curve_383187 : int
+
 val bn_positive : int
 val bn_negative : int
 
@@ -59,28 +82,33 @@ module Internal : sig
   val bn_write_str : char ptr -> int -> bn -> int -> unit
   val bn_read_str  : bn -> char ptr -> int -> int -> unit
 
+  val ec_param_get : unit -> int
+
+  val ec_new         : ec ptr -> unit
+  val ec_free        : ec -> unit
+  val ec_get_gen     : ec -> unit
+  val ec_get_ord     : bn -> unit
+  val ec_is_infty    : ec -> bool
+  val ec_set_infty   : ec -> unit
+  val ec_cmp         : ec -> ec -> int
+  val ec_rand        : ec -> unit
+  val ec_is_valid    : ec -> bool
+  val ec_size_bin    : ec -> int -> int
+  val ec_read_bin    : ec -> Unsigned.UInt8.t ptr -> int -> unit
+  val ec_write_bin   : Unsigned.UInt8.t ptr -> int -> ec -> int -> unit
+  val ec_neg         : ec -> ec -> unit
+  val ec_add         : ec -> ec -> ec -> unit
+  val ec_sub         : ec -> ec -> ec -> unit
+  val ec_mul         : ec -> ec -> bn -> unit
+  val ec_norm        : ec -> ec -> unit
+  val ec_mul_gen     : ec -> bn -> unit
+  val ec_mul_sim     : ec -> ec -> bn -> ec -> bn -> unit
+  val ec_mul_gen_sim : ec -> bn -> ec -> bn -> unit
+
   val pc_param_level  : unit -> int
   val pc_map_is_type1 : unit -> bool
   val pc_map_is_type3 : unit -> bool
-
-  val ec_new       : ec ptr -> unit
-  val ec_free      : ec -> unit
-  val ec_get_gen   : ec -> unit
-  val ec_get_ord   : bn -> unit
-  val ec_is_infty  : ec -> bool
-  val ec_set_infty : ec -> unit
-  val ec_cmp       : ec -> ec -> int
-  val ec_rand      : ec -> unit
-  val ec_is_valid  : ec -> bool
-  val ec_size_bin  : ec -> int -> int
-  val ec_read_bin  : ec -> Unsigned.UInt8.t ptr -> int -> unit
-  val ec_write_bin : Unsigned.UInt8.t ptr -> int -> ec -> int -> unit
-  val ec_neg       : ec -> ec -> unit
-  val ec_add       : ec -> ec -> ec -> unit
-  val ec_sub       : ec -> ec -> ec -> unit
-  val ec_mul       : ec -> ec -> bn -> unit
-  val ec_norm      : ec -> ec -> unit
-  val ec_mul_gen   : ec -> bn -> unit
+  val pc_param_get    : unit -> int
 
   val g1_new       : g1 ptr -> unit
   val g1_free      : g1 -> unit
@@ -171,25 +199,30 @@ val bn_ham       : bn -> int
 val bn_write_str : bn -> radix:int -> string
 val bn_read_str  : string -> radix:int -> bn
 
+val ec_param_get   : unit -> string
+
+val ec_gen         : unit -> ec
+val ec_ord         : unit -> bn
+val ec_is_infty    : ec   -> bool
+val ec_infty       : unit -> ec
+val ec_equal       : ec   -> ec -> bool
+val ec_rand        : unit -> ec
+val ec_is_valid    : ec   -> bool
+val ec_size_bin    : ?compress:bool -> ec -> int
+val ec_read_bin    : string -> ec
+val ec_write_bin   : ?compress:bool -> ec -> string
+val ec_neg         : ec -> ec
+val ec_add         : ec -> ec -> ec
+val ec_sub         : ec -> ec -> ec
+val ec_mul         : ec -> bn -> ec
+val ec_norm        : ec -> ec
+val ec_mul_gen     : bn -> ec
+val ec_mul_sim     : (ec * bn) -> (ec * bn) -> ec  (* multiplies and adds simultaneously *)
+val ec_mul_gen_sim : bn -> (ec * bn) -> ec         (* mul_sim with gen as the first point *)
+
 val pc_param_level : unit -> int
 val pc_map_type    : unit -> int
-
-val ec_gen       : unit -> ec
-val ec_ord       : unit -> bn
-val ec_is_infty  : ec   -> bool
-val ec_infty     : unit -> ec
-val ec_equal     : ec   -> ec -> bool
-val ec_rand      : unit -> ec
-val ec_is_valid  : ec   -> bool
-val ec_size_bin  : ?compress:bool -> ec -> int
-val ec_read_bin  : string -> ec
-val ec_write_bin : ?compress:bool -> ec -> string
-val ec_neg       : ec -> ec
-val ec_add       : ec -> ec -> ec
-val ec_sub       : ec -> ec -> ec
-val ec_mul       : ec -> bn -> ec
-val ec_norm      : ec -> ec
-val ec_mul_gen   : bn -> ec
+val pc_param_get   : unit -> string
 
 val g1_gen       : unit -> g1
 val g1_ord       : unit -> bn

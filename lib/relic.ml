@@ -16,6 +16,29 @@ let bn_negative = RT.bn_negative
 
 let fp_bytes = RT.fp_bytes
 
+let secg_p160    = RT.secg_p160
+let secg_k160    = RT.secg_k160
+let nist_p192    = RT.nist_p192
+let secg_k192    = RT.secg_k192
+let nist_p224    = RT.nist_p224
+let secg_k224    = RT.secg_k224
+let nist_p256    = RT.nist_p256
+let bsi_p256     = RT.bsi_p256
+let secg_k256    = RT.secg_k256
+let nist_p384    = RT.nist_p384
+let nist_p521    = RT.nist_p521
+let bn_p158      = RT.bn_p158
+let bn_p254      = RT.bn_p254
+let bn_p256      = RT.bn_p256
+let b24_p477     = RT.b24_p477
+let kss_p508     = RT.kss_p508
+let bn_p638      = RT.bn_p638
+let b12_p638     = RT.b12_p638
+let ss_p1536     = RT.ss_p1536
+let curve_1174   = RT.curve_1174
+let curve_25519  = RT.curve_25519
+let curve_383187 = RT.curve_383187
+
 let core_init = R.core_init
 let pc_param_set_any = R.pc_param_set_any
 let ec_param_set_any = R.ec_param_set_any
@@ -60,28 +83,33 @@ module Internal = struct
   let bn_write_str = R.bn_write_str
   let bn_read_str  = R.bn_read_str
 
+  let ec_param_get   = R.ec_param_get
+
+  let ec_new         = R.ec_new
+  let ec_free        = R.ec_free
+  let ec_get_gen     = R.ec_get_gen
+  let ec_get_ord     = R.ec_get_ord
+  let ec_is_infty    = R.ec_is_infty
+  let ec_set_infty   = R.ec_set_infty
+  let ec_cmp         = R.ec_cmp
+  let ec_rand        = R.ec_rand
+  let ec_is_valid    = R.ec_is_valid
+  let ec_size_bin    = R.ec_size_bin
+  let ec_read_bin    = R.ec_read_bin
+  let ec_write_bin   = R.ec_write_bin
+  let ec_neg         = R.ec_neg
+  let ec_add         = R.ec_add
+  let ec_sub         = R.ec_sub
+  let ec_mul         = R.ec_mul
+  let ec_norm        = R.ec_norm
+  let ec_mul_gen     = R.ec_mul_gen
+  let ec_mul_sim     = R.ec_mul_sim
+  let ec_mul_gen_sim = R.ec_mul_gen_sim
+
   let pc_param_level  = R.pc_param_level
   let pc_map_is_type1 = R.pc_map_is_type1
   let pc_map_is_type3 = R.pc_map_is_type3
-
-  let ec_new       = R.ec_new
-  let ec_free      = R.ec_free
-  let ec_get_gen   = R.ec_get_gen
-  let ec_get_ord   = R.ec_get_ord
-  let ec_is_infty  = R.ec_is_infty
-  let ec_set_infty = R.ec_set_infty
-  let ec_cmp       = R.ec_cmp
-  let ec_rand      = R.ec_rand
-  let ec_is_valid  = R.ec_is_valid
-  let ec_size_bin  = R.ec_size_bin
-  let ec_read_bin  = R.ec_read_bin
-  let ec_write_bin = R.ec_write_bin
-  let ec_neg       = R.ec_neg
-  let ec_add       = R.ec_add
-  let ec_sub       = R.ec_sub
-  let ec_mul       = R.ec_mul
-  let ec_norm      = R.ec_norm
-  let ec_mul_gen   = R.ec_mul_gen
+  let pc_param_get    = R.pc_param_get
 
   let g1_new       = R.g1_new
   let g1_free      = R.g1_free
@@ -287,13 +315,33 @@ let bn_read_str str ~radix =
 
 let compress_flag compress = if compress then 1 else 0
 
-let pc_param_level () = Internal.pc_param_level ()
+let curve_of_param param =
+  if param = secg_p160         then "SECG_P160"
+  else if param = secg_k160    then "SECG_K160"
+  else if param = nist_p192    then "NIST_P192"
+  else if param = secg_k192    then "SECG_K192"
+  else if param = nist_p224    then "NIST_P224"
+  else if param = secg_k224    then "SECG_K224"
+  else if param = nist_p256    then "NIST_P256"
+  else if param = bsi_p256     then "BSI_P256"
+  else if param = secg_k256    then "SECG_K256"
+  else if param = nist_p384    then "NIST_P384"
+  else if param = nist_p521    then "NIST_P521"
+  else if param = bn_p158      then "BN_P158"
+  else if param = bn_p254      then "BN_P254"
+  else if param = bn_p256      then "BN_P256"
+  else if param = b24_p477     then "B24_P477"
+  else if param = kss_p508     then "KSS_P508"
+  else if param = bn_p638      then "BN_P638"
+  else if param = b12_p638     then "B12_P638"
+  else if param = ss_p1536     then "SS_P1536"
+  else if param = curve_1174   then "CURVE_1174"
+  else if param = curve_25519  then "CURVE_25519"
+  else if param = curve_383187 then "CURVE_383187"
+  else "unknown curve"
 
-let pc_map_type () =
-  if Internal.pc_map_is_type1 ()      then 1
-  else if Internal.pc_map_is_type3 () then 3
-  else failwith "Unknown type"
-
+let ec_param_get () =
+  Internal.ec_param_get () |> curve_of_param
 
 let allocate_ec () =
   let ec_p = R.EC.allocate () in
@@ -404,8 +452,28 @@ let ec_mul_gen k =
   Internal.ec_mul_gen res k;
   res
 
+let ec_mul_sim (ec,k) (ec',k') =
+  let res = allocate_ec () in
+  Internal.ec_mul_sim res ec k ec' k';
+  res
+
+let ec_mul_gen_sim k (ec',k') =
+  let res = allocate_ec () in
+  Internal.ec_mul_gen_sim res k ec' k';
+  res
+
 
 (* ** Pairing Groups *)
+
+let pc_param_level () = Internal.pc_param_level ()
+
+let pc_map_type () =
+  if Internal.pc_map_is_type1 ()      then 1
+  else if Internal.pc_map_is_type3 () then 3
+  else failwith "Unknown type"
+
+let pc_param_get () =
+  Internal.pc_param_get () |> curve_of_param
 
 (* *** G1 *)
 

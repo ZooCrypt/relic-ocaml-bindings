@@ -18,9 +18,30 @@ module Types (F: Cstubs.Types.TYPE) = struct
   let bn_negative = constant "BN_NEG" int
 
   let fp_bytes = constant "FP_BYTES" int
-end
 
-(* ** Bindings module *)
+  let secg_p160    = constant "SECG_P160" int
+  let secg_k160    = constant "SECG_K160" int
+  let nist_p192    = constant "NIST_P192" int
+  let secg_k192    = constant "SECG_K192" int
+  let nist_p224    = constant "NIST_P224" int
+  let secg_k224    = constant "SECG_K224" int
+  let nist_p256    = constant "NIST_P256" int
+  let bsi_p256     = constant "BSI_P256" int
+  let secg_k256    = constant "SECG_K256" int
+  let nist_p384    = constant "NIST_P384" int
+  let nist_p521    = constant "NIST_P521" int
+  let bn_p158      = constant "BN_P158" int
+  let bn_p254      = constant "BN_P254" int
+  let bn_p256      = constant "BN_P256" int
+  let b24_p477     = constant "B24_P477" int
+  let kss_p508     = constant "KSS_P508" int
+  let bn_p638      = constant "BN_P638" int
+  let b12_p638     = constant "B12_P638" int
+  let ss_p1536     = constant "SS_P1536" int
+  let curve_1174   = constant "CURVE_1174" int
+  let curve_25519  = constant "CURVE_25519" int
+  let curve_383187 = constant "CURVE_383187" int
+end
 
 module Bindings (F : Cstubs.FOREIGN) = struct
   open F
@@ -90,35 +111,41 @@ module Bindings (F : Cstubs.FOREIGN) = struct
 
 (* *** Elliptic Curves *)
 
-  let pc_param_level  = foreign "pc_param_level"  (void @-> returning int)
-  let pc_map_is_type1 = foreign "pc_map_is_type1" (void @-> returning bool)
-  let pc_map_is_type3 = foreign "pc_map_is_type3" (void @-> returning bool)
-
   module EC = Typedef_ptr(struct let type_name = "ec_t" end)
 
   let ec = EC.t
 
+  let ec_param_get = foreign "ec_param_get" (void @-> returning int)
+
   let ec_new  = foreign "w_ec_new" (ptr ec @-> returning void)
   let ec_free = foreign "ec_free"  (ec @-> returning void)
 
-  let ec_get_gen   = foreign "ec_curve_get_gen" (ec @-> returning void) (* Note the word 'curve' in *)
-  let ec_get_ord   = foreign "ec_curve_get_ord" (bn @-> returning void) (* the relic function name *)
-  let ec_is_infty  = foreign "ec_is_infty"  (ec @-> returning bool)
-  let ec_set_infty = foreign "ec_set_infty" (ec @-> returning void)
-  let ec_cmp       = foreign "ec_cmp"       (ec @-> ec @-> returning int)
-  let ec_rand      = foreign "ec_rand"      (ec @-> returning void)
-  let ec_is_valid  = foreign "ec_is_valid"  (ec @-> returning bool)
-  let ec_size_bin  = foreign "ec_size_bin"  (ec @-> int @-> returning int)
-  let ec_read_bin  = foreign "ec_read_bin"  (ec @-> ptr uint8_t @-> int @-> returning void)
-  let ec_write_bin = foreign "ec_write_bin" (ptr uint8_t @-> int @-> ec @-> int @-> returning void)
-  let ec_neg       = foreign "ec_neg"       (ec @-> ec @-> returning void)
-  let ec_add       = foreign "ec_add"       (ec @-> ec @-> ec @-> returning void)
-  let ec_sub       = foreign "ec_sub"       (ec @-> ec @-> ec @-> returning void)
-  let ec_mul       = foreign "ec_mul"       (ec @-> ec @-> bn @-> returning void)
-  let ec_norm      = foreign "ec_norm"      (ec @-> ec @-> returning void)
-  let ec_mul_gen   = foreign "ec_mul_gen"   (ec @-> bn @-> returning void)
+  let ec_get_gen     = foreign "ec_curve_get_gen" (ec @-> returning void) (* Note the word 'curve' in *)
+  let ec_get_ord     = foreign "ec_curve_get_ord" (bn @-> returning void) (* the relic function name *)
+  let ec_is_infty    = foreign "ec_is_infty"      (ec @-> returning bool)
+  let ec_set_infty   = foreign "ec_set_infty"     (ec @-> returning void)
+  let ec_cmp         = foreign "ec_cmp"           (ec @-> ec @-> returning int)
+  let ec_rand        = foreign "ec_rand"          (ec @-> returning void)
+  let ec_is_valid    = foreign "ec_is_valid"      (ec @-> returning bool)
+  let ec_size_bin    = foreign "ec_size_bin"      (ec @-> int @-> returning int)
+  let ec_read_bin    = foreign "ec_read_bin"      (ec @-> ptr uint8_t @-> int @-> returning void)
+  let ec_write_bin   = foreign "ec_write_bin"     (ptr uint8_t @-> int @-> ec @-> int @-> returning void)
+  let ec_neg         = foreign "ec_neg"           (ec @-> ec @-> returning void)
+  let ec_add         = foreign "ec_add"           (ec @-> ec @-> ec @-> returning void)
+  let ec_sub         = foreign "ec_sub"           (ec @-> ec @-> ec @-> returning void)
+  let ec_mul         = foreign "ec_mul"           (ec @-> ec @-> bn @-> returning void)
+  let ec_norm        = foreign "ec_norm"          (ec @-> ec @-> returning void)
+  let ec_mul_gen     = foreign "ec_mul_gen"       (ec @-> bn @-> returning void)
+  let ec_mul_sim     = foreign "ec_mul_sim"       (ec @-> ec @-> bn @-> ec @-> bn @-> returning void)
+  let ec_mul_gen_sim = foreign "ec_mul_sim_gen"   (ec @-> bn @-> ec @-> bn @-> returning void)
+
 
 (* *** Pairing Groups *)
+
+  let pc_param_level  = foreign "pc_param_level"  (void @-> returning int)
+  let pc_map_is_type1 = foreign "pc_map_is_type1" (void @-> returning bool)
+  let pc_map_is_type3 = foreign "pc_map_is_type3" (void @-> returning bool)
+  let pc_param_get    = foreign "ep_param_get"    (void @-> returning int) (* It is "ep" and not "pc" *)
 
 (* **** G1 *)
 

@@ -451,34 +451,76 @@ let test_abe =
     else assert false
 
 
-let test_ec () =
+let test_ec =
+  "test_ec" >:: fun () ->
+     assert_equal (R.core_init ()) R.sts_ok;
+     assert_equal (R.ec_param_set_any ()) R.sts_ok;
 
-    assert_equal (R.core_init ()) R.sts_ok;
-    assert_equal (R.ec_param_set_any ()) R.sts_ok;
+     F.printf "EC Curve: %s\n" (R.ec_param_get ());
 
-    let g = R.ec_gen () in
-    let p = R.ec_ord () in
+     let g = R.ec_gen () in
+     let p = R.ec_ord () in
 
-    let a = R.bn_rand_mod p in
-    let b = R.bn_rand_mod p in
+     let a = R.bn_rand_mod p in
+     let b = R.bn_rand_mod p in
 
-    let ga = R.ec_mul g a in
-    let gb = R.ec_mul g b in
+     let ga = R.ec_mul g a in
+     let gb = R.ec_mul g b in
 
-    let gab = R.ec_mul ga b in
-    let gba = R.ec_mul gb a in
+     let gab = R.ec_mul ga b in
+     let gba = R.ec_mul gb a in
 
-    (for i = 1 to 10000 do
-      let _ = R.ec_mul ga b in
-      ()
-    done);
+     let _gg = R.g1_gen () in
 
-    (assert (R.ec_equal gab gba));
+     let t1 = Unix.gettimeofday() in
+     (for i = 1 to 10000 do
+        let _ = R.ec_mul_gen b in
+        ()
+      done);
+     let t2 = Unix.gettimeofday() in
 
-    F.printf "Order: %s\n" (R.bn_write_str p ~radix:10);
-    F.printf "a: %s\nb: %s\n" (R.bn_write_str a ~radix:10) (R.bn_write_str b ~radix:10);
-    F.printf "EC test succeedded\n"
-(*
+     (assert (R.ec_equal gab gba));
+
+     F.printf "Order: %s\n" (R.bn_write_str p ~radix:10);
+     F.printf "a: %s\nb: %s\n" (R.bn_write_str a ~radix:10) (R.bn_write_str b ~radix:10);
+     F.printf "EC test succeedded\n";
+
+     F.printf "Time: %F\n\n" (t2 -. t1);
+
+     assert_equal (R.core_init ()) R.sts_ok;
+     assert_equal (R.pc_param_set_any ()) R.sts_ok;
+
+     F.printf "PC Curve: %s\n" (R.pc_param_get ());
+
+     let g = R.g1_gen () in
+     let p = R.g1_ord () in
+
+     let a = R.bn_rand_mod p in
+     let b = R.bn_rand_mod p in
+
+     let ga = R.g1_mul g a in
+     let gb = R.g1_mul g b in
+
+     let gab = R.g1_mul ga b in
+     let gba = R.g1_mul gb a in
+
+
+     let t1 = Unix.gettimeofday() in
+     (for i = 1 to 10000 do
+        let _ = R.g1_mul_gen b in
+        ()
+      done);
+     let t2 = Unix.gettimeofday() in
+
+
+     (assert (R.g1_equal gab gba));
+
+     F.printf "Order: %s\n" (R.bn_write_str p ~radix:10);
+     F.printf "a: %s\nb: %s\n" (R.bn_write_str a ~radix:10) (R.bn_write_str b ~radix:10);
+     F.printf "EC test succeedded\n";
+
+     F.printf "Time: %F\n\n" (t2 -. t1)
+
 let _ =
   let suite = "relic" >::: [
     (* test_functions; *)
@@ -490,5 +532,3 @@ let _ =
   in
   OUnit2.run_test_tt_main @@ ounit2_of_ounit1 suite;
   Gc.full_major ()
- *)
-let _ = test_ec ()
