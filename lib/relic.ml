@@ -372,6 +372,9 @@ let ec_equal ec ec' =
   if (Internal.ec_cmp ec ec') = cmp_eq then true
   else false
 
+let ec_cmp ec ec' =
+  Internal.ec_cmp ec ec'
+
 let ec_rand () =
   let ec = allocate_ec () in
   Internal.ec_rand ec;

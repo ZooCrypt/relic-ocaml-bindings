@@ -206,6 +206,7 @@ val ec_ord         : unit -> bn
 val ec_is_infty    : ec   -> bool
 val ec_infty       : unit -> ec
 val ec_equal       : ec   -> ec -> bool
+val ec_cmp         : ec -> ec -> int
 val ec_rand        : unit -> ec
 val ec_is_valid    : ec   -> bool
 val ec_size_bin    : ?compress:bool -> ec -> int
