@@ -17,7 +17,6 @@ int main()
    level = ec_param_level ();
    printf("EC Curve:");
    ec_param_print();
-   pc_param_print();
    printf("Security Level:%d\nOk: %s\n\n", level, ok_msg);
 
    bn_t ord;
@@ -35,7 +34,6 @@ int main()
    if (ok == 0){ ok_msg = "True"; } else { ok_msg = "False"; };
    level = pc_param_level ();
    printf("Pairings Curve:");
-   ec_param_print();
    pc_param_print();
    printf("Security Level:%d\nOk: %s\n", level, ok_msg);
 
