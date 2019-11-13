@@ -388,23 +388,6 @@ let ec_size_bin ?(compress=false) ec =
   Internal.ec_size_bin ec flag
 
 let ec_read_bin str =
-  let _checking =
-    match String.length str with
-    | 1 ->
-       if str.[0] != '\000' then
-         failwith "Invalid string: first byte expected to be \000"
-       else ()
-    | a when a = (fp_bytes + 1) ->
-       if str.[0] != '\002' && str.[0] != '\003' then
-         failwith "Invalid string: first byte expected to be either \002 or \003"
-       else ()
-    | a when a = (2 * fp_bytes + 1) ->
-       if str.[0] != '\004' then
-         failwith "Invalid string: first byte expected to be \004"
-       else ()
-    | a -> failwith ("Invalid string: " ^ (string_of_int a) ^ " is not one of the accepted lengths:" ^
-       " 1, " ^ (string_of_int (fp_bytes + 1)) ^ ", " ^ (string_of_int (2*fp_bytes + 1)))
-  in
   let ec = allocate_ec () in
   let length = String.length str in
   let buf = Ctypes.allocate_n char ~count:length in
