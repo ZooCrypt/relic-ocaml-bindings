@@ -1,4 +1,98 @@
 <lib_test/*>:  pkg_core_kernel
 
 # OASIS_START
+# DO NOT EDIT (digest: bae67aa714d3acd3cb78a97c9cf16026)
+# Ignore VCS directories, you can use the same kind of rule outside
+# OASIS_START/STOP if you want to exclude directories that contains
+# useless stuff for the build process
+true: annot, bin_annot
+<**/.svn>: -traverse
+<**/.svn>: not_hygienic
+".bzr": -traverse
+".bzr": not_hygienic
+".hg": -traverse
+".hg": not_hygienic
+".git": -traverse
+".git": not_hygienic
+"_darcs": -traverse
+"_darcs": not_hygienic
+# Library relic_bindings
+"bindings/relic_bindings.cmxs": use_relic_bindings
+<bindings/relic_bindings.{cma,cmxa}>: oasis_library_relic_bindings_byte
+<bindings/*.ml{,i,y}>: oasis_library_relic_bindings_byte
+<bindings/relic_bindings.{cma,cmxa}>: oasis_library_relic_bindings_native
+<bindings/*.ml{,i,y}>: oasis_library_relic_bindings_native
+<bindings/*.ml{,i,y}>: pkg_ctypes
+<bindings/*.ml{,i,y}>: pkg_ctypes.foreign
+<bindings/*.ml{,i,y}>: pkg_ctypes.stubs
+# Library relic
+"lib/relic.cmxs": use_relic
+<lib/*.ml{,i,y}>: oasis_library_relic_ccopt
+"lib/ffi_generated_stubs.c": oasis_library_relic_ccopt
+"lib/relic_wrapper.c": oasis_library_relic_ccopt
+<lib/relic.{cma,cmxa}>: oasis_library_relic_cclib
+"lib/librelic_stubs.lib": oasis_library_relic_cclib
+"lib/dllrelic_stubs.dll": oasis_library_relic_cclib
+"lib/librelic_stubs.a": oasis_library_relic_cclib
+"lib/dllrelic_stubs.so": oasis_library_relic_cclib
+<lib/relic.{cma,cmxa}>: oasis_library_relic_byte
+<lib/*.ml{,i,y}>: oasis_library_relic_byte
+"lib/ffi_generated_stubs.c": oasis_library_relic_byte
+"lib/relic_wrapper.c": oasis_library_relic_byte
+<lib/relic.{cma,cmxa}>: oasis_library_relic_native
+<lib/*.ml{,i,y}>: oasis_library_relic_native
+"lib/ffi_generated_stubs.c": oasis_library_relic_native
+"lib/relic_wrapper.c": oasis_library_relic_native
+<lib/relic.{cma,cmxa}>: use_librelic_stubs
+<lib/*.ml{,i,y}>: pkg_ctypes
+<lib/*.ml{,i,y}>: pkg_ctypes.foreign
+<lib/*.ml{,i,y}>: pkg_ctypes.stubs
+<lib/*.ml{,i,y}>: use_relic_bindings
+"lib/ffi_generated_stubs.c": pkg_ctypes
+"lib/ffi_generated_stubs.c": pkg_ctypes.foreign
+"lib/ffi_generated_stubs.c": pkg_ctypes.stubs
+"lib/ffi_generated_stubs.c": use_relic_bindings
+"lib/relic_wrapper.c": pkg_ctypes
+"lib/relic_wrapper.c": pkg_ctypes.foreign
+"lib/relic_wrapper.c": pkg_ctypes.stubs
+"lib/relic_wrapper.c": use_relic_bindings
+# Executable ffi_stubgen
+"stubgen/ffi_stubgen.byte": oasis_executable_ffi_stubgen_byte
+<stubgen/*.ml{,i,y}>: oasis_executable_ffi_stubgen_byte
+"stubgen/ffi_stubgen.byte": oasis_executable_ffi_stubgen_native
+<stubgen/*.ml{,i,y}>: oasis_executable_ffi_stubgen_native
+"stubgen/ffi_stubgen.byte": pkg_ctypes
+"stubgen/ffi_stubgen.byte": pkg_ctypes.foreign
+"stubgen/ffi_stubgen.byte": pkg_ctypes.stubs
+"stubgen/ffi_stubgen.byte": use_relic_bindings
+# Executable ffi_types_stubgen
+"stubgen/ffi_types_stubgen.byte": oasis_executable_ffi_types_stubgen_byte
+<stubgen/*.ml{,i,y}>: oasis_executable_ffi_types_stubgen_byte
+"stubgen/ffi_types_stubgen.byte": oasis_executable_ffi_types_stubgen_native
+<stubgen/*.ml{,i,y}>: oasis_executable_ffi_types_stubgen_native
+"stubgen/ffi_types_stubgen.byte": pkg_ctypes
+"stubgen/ffi_types_stubgen.byte": pkg_ctypes.foreign
+"stubgen/ffi_types_stubgen.byte": pkg_ctypes.stubs
+"stubgen/ffi_types_stubgen.byte": use_relic_bindings
+<stubgen/*.ml{,i,y}>: pkg_ctypes
+<stubgen/*.ml{,i,y}>: pkg_ctypes.foreign
+<stubgen/*.ml{,i,y}>: pkg_ctypes.stubs
+<stubgen/*.ml{,i,y}>: use_relic_bindings
+# Executable test_relic
+<lib_test/test_relic.{native,byte}>: oasis_executable_test_relic_byte
+<lib_test/*.ml{,i,y}>: oasis_executable_test_relic_byte
+<lib_test/test_relic.{native,byte}>: oasis_executable_test_relic_native
+<lib_test/*.ml{,i,y}>: oasis_executable_test_relic_native
+<lib_test/test_relic.{native,byte}>: pkg_ctypes
+<lib_test/test_relic.{native,byte}>: pkg_ctypes.foreign
+<lib_test/test_relic.{native,byte}>: pkg_ctypes.stubs
+<lib_test/test_relic.{native,byte}>: pkg_oUnit
+<lib_test/test_relic.{native,byte}>: use_relic
+<lib_test/test_relic.{native,byte}>: use_relic_bindings
+<lib_test/*.ml{,i,y}>: pkg_ctypes
+<lib_test/*.ml{,i,y}>: pkg_ctypes.foreign
+<lib_test/*.ml{,i,y}>: pkg_ctypes.stubs
+<lib_test/*.ml{,i,y}>: pkg_oUnit
+<lib_test/*.ml{,i,y}>: use_relic
+<lib_test/*.ml{,i,y}>: use_relic_bindings
 # OASIS_STOP

@@ -17,7 +17,7 @@ make
 sudo make install
 ```
 
-The installation works for commit 0e239a842b89126080e998e3836f83aff1078576 of relic.
+The installation should work for commit 8813e89063145bd8a9002d000b854bca49ccf87b of relic.
 
 
 To compile and test these bindings, execute the following commands:

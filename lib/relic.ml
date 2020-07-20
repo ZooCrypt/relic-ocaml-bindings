@@ -14,7 +14,8 @@ let cmp_ne = RT.cmp_ne
 let bn_positive = RT.bn_positive
 let bn_negative = RT.bn_negative
 
-let fp_bytes = RT.fp_bytes
+let fp_prime = RT.fp_prime
+let fp_bytes = 1 + (fp_prime - 1) / 8
 
 let secg_p160    = RT.secg_p160
 let secg_k160    = RT.secg_k160

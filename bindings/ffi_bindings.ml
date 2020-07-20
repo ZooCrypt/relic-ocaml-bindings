@@ -6,18 +6,18 @@ open Ctypes
 
 module Types (F: Cstubs.Types.TYPE) = struct
   open F
-  let sts_ok  = constant "STS_OK" int
-  let sts_err = constant "STS_ERR" int
+  let sts_ok  = constant "RLC_OK" int
+  let sts_err = constant "RLC_ERR" int
 
-  let cmp_lt  = constant "CMP_LT" int
-  let cmp_eq  = constant "CMP_EQ" int
-  let cmp_gt  = constant "CMP_GT" int
-  let cmp_ne  = constant "CMP_NE" int
+  let cmp_lt  = constant "RLC_LT" int
+  let cmp_eq  = constant "RLC_EQ" int
+  let cmp_gt  = constant "RLC_GT" int
+  let cmp_ne  = constant "RLC_NE" int
 
-  let bn_positive = constant "BN_POS" int
-  let bn_negative = constant "BN_NEG" int
+  let bn_positive = constant "RLC_POS" int
+  let bn_negative = constant "RLC_NEG" int
 
-  let fp_bytes = constant "FP_BYTES" int
+  let fp_prime = constant "FP_PRIME" int
 
   let secg_p160    = constant "SECG_P160" int
   let secg_k160    = constant "SECG_K160" int
@@ -126,7 +126,7 @@ module Bindings (F : Cstubs.FOREIGN) = struct
   let ec_set_infty   = foreign "ec_set_infty"     (ec @-> returning void)
   let ec_cmp         = foreign "ec_cmp"           (ec @-> ec @-> returning int)
   let ec_rand        = foreign "ec_rand"          (ec @-> returning void)
-  let ec_is_valid    = foreign "ec_is_valid"      (ec @-> returning bool)
+  let ec_is_valid    = foreign "ec_on_curve"      (ec @-> returning bool)
   let ec_size_bin    = foreign "ec_size_bin"      (ec @-> int @-> returning int)
   let ec_read_bin    = foreign "ec_read_bin"      (ec @-> ptr uint8_t @-> int @-> returning void)
   let ec_write_bin   = foreign "ec_write_bin"     (ptr uint8_t @-> int @-> ec @-> int @-> returning void)
